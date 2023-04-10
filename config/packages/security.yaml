@@ -1,0 +1,55 @@
+security:
+  enable_authenticator_manager: true
+  password_hashers:
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
+    App\Entity\User:
+      algorithm: auto
+
+  providers:
+    app_user_provider:
+      entity:
+        class: App\Entity\User
+        property: email
+  firewalls:
+    login:
+      pattern: ^/api/login
+      stateless: true
+      json_login:
+          check_path: /api/login_check
+          success_handler: lexik_jwt_authentication.handler.authentication_success
+          failure_handler: lexik_jwt_authentication.handler.authentication_failure
+    api:
+        pattern:   ^/api
+        stateless: true
+        jwt: ~
+
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+
+    forwardAuth:
+      pattern: '^/auth'
+      stateless: true
+      custom_authenticators:
+        - App\Security\TrustedDeviceAuthenticator
+        - App\Security\ForwardedAuthAuthenticator
+
+    main:
+      lazy: true
+      provider: app_user_provider
+      switch_user: true
+      form_login:
+        login_path: app_login
+        check_path: app_login
+        default_target_path: admin_dashboard
+      logout:
+        path: app_logout
+        target: app_login
+    
+
+  access_control:
+    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/api/login, roles: PUBLIC_ACCESS }
+    - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/admin, roles: ROLE_ADMIN }
+    - { path: ^/, roles: PUBLIC_ACCESS }

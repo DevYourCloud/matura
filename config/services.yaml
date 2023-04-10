@@ -1,0 +1,30 @@
+parameters:
+  trusted_device_version: 1
+  token_lifetime: 30 #days
+  encryption_key: '%env(APP_ENCRYPTION_KEY)%'
+  trusted_device_cookie_name: '_trusted_device'
+  trusted_device_header_name: 'x-trusted-device'
+
+services:
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    
+        bind:
+            $trustedDeviceCookieName: '%trusted_device_cookie_name%'
+            $trustedDeviceHeaderName: '%trusted_device_header_name%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Tests/'
+        
+    App\Service\EncryptionService:
+        arguments:
+            $salt: '%env(APP_SECRET)%'
+            $trustedDeviceVersion: '%trusted_device_version%'
+            $tokenLifetime: '%token_lifetime%'
+            $secretKey: '%encryption_key%'

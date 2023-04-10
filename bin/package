@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -ex
+cd "`dirname "$0"`/.."
+
+APP_ENV=prod composer install --no-dev --optimize-autoloader
+
+rm -rf package
+mkdir package
+
+tar -czf package/matura.tgz \
+    --exclude=.git \
+    --exclude=public/media/* \
+        config \
+        bin \
+        src \
+        assets \
+        translations \
+        migrations \
+        templates \
+        public \
+        vendor \
+        composer.json \
+        composer.lock \
+        symfony.lock \
+        package.json \
+        yarn.lock \
+
+APP_ENV=dev composer install

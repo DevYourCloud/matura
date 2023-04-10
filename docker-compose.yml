@@ -1,0 +1,60 @@
+version: "3"
+
+networks:
+  default: ~
+  traefik:
+    external: true
+
+services:
+  bdd:
+    image: mariadb:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=web_matura
+    ports:
+      - "3320:3306"
+    networks:
+      default: ~
+      traefik: ~
+
+  php:
+    build: docker/php
+    volumes:
+      - .:/var/www:rw,cached
+      - ./public:/var/www/public:rw,delegated
+    networks:
+      default: ~
+      traefik: ~
+  
+  nginx:
+    build: docker/nginx
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.devyourcloud.rule=Host(`matura.devyour.cloud`)"
+      - "traefik.http.routers.devyourcloud.entrypoints=web"
+      - "traefik.http.routers.devyourcloud-secure.rule=Host(`matura.devyour.cloud`)"
+      - "traefik.http.routers.devyourcloud-secure.tls=true"
+      - "traefik.http.routers.devyourcloud-secure.entrypoints=websecure"
+    volumes:
+      - ./public:/var/www/public:ro
+    depends_on:
+      - php
+    ports:
+      - 8082:80
+    networks:
+      default: ~
+      traefik: ~
+  
+  nodejs:
+    build: docker/nodejs
+    depends_on:
+      - php
+    environment:
+      - APP_ENV=dev
+      - PHP_HOST=php
+    volumes:
+      - .:/var/www:rw,cached
+      - ./public:/www/var/public:rw,delegated
+    networks:
+      default: ~
+      traefik: ~

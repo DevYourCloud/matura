@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            {% block title %}Matura
+            {% endblock %}
+        </title>
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
+    </head>
+    <body>
+        <nav class="container-fluid">
+            <ul>
+                <li>
+                    <a href="{{ path('admin_dashboard') }}" class="contrast">
+                        <img class="logo" src="./build/images/logo.png" alt="Matura"><strong>Matura</strong>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="container"> 
+            {% block body %}{% endblock %}
+        </main>
+        
+        <footer class="container-fluid">
+            <div class="text-center">
+                <small>Made with
+                    <span class="heart">♥</span>
+                    by
+                    <a class="underline" href="https://binariesworld.com/">BinariesWorld</a>
+                </small>
+            </div>
+            <div class="text-center">
+                <small>Photo by <a href="https://unsplash.com/@bertsz?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">bert b</a> on <a href="https://unsplash.com/photos/rhNff6hB41s?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a></small>
+            </div>
+        </footer>
+        <!-- ./ Footer -->
+    </body>
+</html>
