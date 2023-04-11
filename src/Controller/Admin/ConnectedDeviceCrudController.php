@@ -15,13 +15,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Orm\EntityRepository;
 
 class ConnectedDeviceCrudController extends AbstractCrudController
 {
     public function __construct(
         protected EncryptionService $encryptionService,
-        private EntityRepository $entityRepository,
     ) {
     }
 
