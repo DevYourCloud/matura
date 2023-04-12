@@ -4,13 +4,13 @@ namespace App\Command\Admin;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\Validator\AdminCreationCommandValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -26,16 +26,17 @@ use function Symfony\Component\String\u;
  * @author Yonel Ceruto <yonelceruto@gmail.com>
  */
 #[AsCommand(
-    name: 'app:add-user',
-    description: 'Creates users and stores them in the database'
+    name: 'app:add-admin-user',
+    description: 'Creates an admin user'
 )]
-class CreateUserCommand extends Command
+class AddAdminCommand extends Command
 {
     private SymfonyStyle $io;
 
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
+        private AdminCreationCommandValidator $validator,
         private UserRepository $users
     ) {
         parent::__construct();
@@ -48,7 +49,6 @@ class CreateUserCommand extends Command
             ->addArgument('email', InputArgument::OPTIONAL, 'The email of the new user')
             ->addArgument('username', InputArgument::OPTIONAL, 'The full name of the new user')
             ->addArgument('password', InputArgument::OPTIONAL, 'The plain password of the new user')
-            ->addOption('admin', null, InputOption::VALUE_NONE, 'If set, the user is created as an administrator')
         ;
     }
 
@@ -68,7 +68,7 @@ class CreateUserCommand extends Command
             'If you prefer to not use this interactive wizard, provide the',
             'arguments required by this command as follows:',
             '',
-            ' $ php bin/console app:add-user username password email@example.com',
+            ' $ php bin/console app:add-admin email@example.com username password ',
             '',
             'Now we\'ll ask you for the value of all the missing command arguments.',
         ]);
@@ -78,7 +78,7 @@ class CreateUserCommand extends Command
         if (null !== $username) {
             $this->io->text(' > <info>Full Name</info>: '.$username);
         } else {
-            $username = $this->io->ask('Full Name', null, [$this, 'validateUsername']);
+            $username = $this->io->ask('Full Name', null, [$this->validator, 'validateUsername']);
             $input->setArgument('username', $username);
         }
 
@@ -87,7 +87,7 @@ class CreateUserCommand extends Command
         if (null !== $email) {
             $this->io->text(' > <info>Email</info>: '.$email);
         } else {
-            $email = $this->io->ask('Email', null, [$this, 'validateEmail']);
+            $email = $this->io->ask('Email', null, [$this->validator, 'validateEmail']);
             $input->setArgument('email', $email);
         }
 
@@ -98,7 +98,7 @@ class CreateUserCommand extends Command
         } else {
             $password = $this->io->askHidden(
                 'Password - min 6 chars (your type will be hidden)',
-                [$this, 'validatePassword']
+                [$this->validator, 'validatePassword']
             );
             $input->setArgument('password', $password);
         }
@@ -109,7 +109,6 @@ class CreateUserCommand extends Command
         $plainPassword = $input->getArgument('password');
         $email = $input->getArgument('email');
         $username = $input->getArgument('username');
-        $isAdmin = $input->getOption('admin');
 
         // make sure to validate the user data is correct
         $this->validateUserData($email);
@@ -118,7 +117,8 @@ class CreateUserCommand extends Command
         $user = new User();
         $user->setFullName($username);
         $user->setEmail($email);
-        $user->setRoles([$isAdmin ? 'ROLE_ADMIN' : 'ROLE_USER']);
+        $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+        $user->setActive(true);
 
         $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setPassword($hashedPassword);
@@ -126,44 +126,9 @@ class CreateUserCommand extends Command
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $this->io->success(sprintf('%s was successfully created: %s', $isAdmin ? 'Administrator user' : 'User', $user->getUserIdentifier()));
+        $this->io->success(sprintf('%s was successfully created!', $user->getUserIdentifier()));
 
         return Command::SUCCESS;
-    }
-
-    private function validatePassword(?string $plainPassword): string
-    {
-        if (empty($plainPassword)) {
-            throw new \InvalidArgumentException('The password can not be empty.');
-        }
-
-        if (u($plainPassword)->trim()->length() < 6) {
-            throw new \InvalidArgumentException('The password must be at least 6 characters long.');
-        }
-
-        return $plainPassword;
-    }
-
-    private function validateEmail(?string $email): string
-    {
-        if (empty($email)) {
-            throw new \InvalidArgumentException('The email can not be empty.');
-        }
-
-        if (null === u($email)->indexOf('@')) {
-            throw new \InvalidArgumentException('The email should look like a real email.');
-        }
-
-        return $email;
-    }
-
-    private function validateUsername(?string $username): string
-    {
-        if (empty($username)) {
-            throw new \InvalidArgumentException('The username can not be empty.');
-        }
-
-        return $username;
     }
 
     private function validateUserData($email): void
@@ -181,17 +146,8 @@ class CreateUserCommand extends Command
         return <<<'HELP'
             The <info>%command.name%</info> command creates new users and saves them in the database:
               <info>php %command.full_name%</info> <comment>username password email</comment>
-            By default the command creates regular users. To create administrator users,
-            add the <comment>--admin</comment> option:
-              <info>php %command.full_name%</info> username password email <comment>--admin</comment>
             If you omit any of the three required arguments, the command will ask you to
-            provide the missing values:
-              # command will ask you for the email
-              <info>php %command.full_name%</info> <comment>username password</comment>
-              # command will ask you for the email and password
-              <info>php %command.full_name%</info> <comment>username</comment>
-              # command will ask you for all arguments
-              <info>php %command.full_name%</info>
+            provide the missing values.
             HELP;
     }
 }
