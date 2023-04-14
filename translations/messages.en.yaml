@@ -1,0 +1,3 @@
+app:
+  admin:
+    host_server.example: "The application slug (ex. myapp for a myapp.server.tld)"

@@ -43,10 +43,10 @@ class Application
     /**
      * @ORM\ManyToOne(targetEntity="Server", inversedBy="apps")
      */
-    protected ?Server $server;
+    protected ?Server $server = null;
 
     /** @ORM\OneToOne(targetEntity="Host", mappedBy="app", cascade={"persist", "remove"}) */
-    protected Host $host;
+    protected ?Host $host = null;
 
     public function __toString(): string
     {
@@ -126,13 +126,22 @@ class Application
         return $this;
     }
 
-    public function createHost(string $serverDomain): self
+    public function createHost(): self
     {
-        $appDomain = $this->alias.'.'.$serverDomain;
+        $appDomain = $this->alias.'.'.$this->server->getHost()->getDomain();
 
-        $this->host = new Host();
-        $this->host->setDomain($appDomain);
-        $this->host->setApp($this);
+        $host = $this->host;
+        if (null === $host) {
+            $host = new Host();
+            $host->setCreatedAt(new \DateTime('now'));
+        }
+
+        $host->setDomain($appDomain);
+        $host->setApp($this);
+        $host->setServer($this->server);
+        $host->setUpdatedAt(new \DateTime('now'));
+
+        $this->host = $host;
 
         return $this;
     }

@@ -157,15 +157,6 @@ class Server
         return $this;
     }
 
-    public function createHost(string $host): self
-    {
-        $this->host = new Host();
-        $this->host->setDomain($host);
-        $this->host->setServer($this);
-
-        return $this;
-    }
-
     public function getApps(): Collection
     {
         return $this->apps;

@@ -29,10 +29,10 @@ class Host
      */
     private ?string $domain;
 
-    /** @ORM\OneToOne(targetEntity="Server", inversedBy="host") */
+    /** @ORM\ManyToOne(targetEntity="Server", inversedBy="host") */
     private ?Server $server = null;
 
-    /** @ORM\OneToOne(targetEntity="Application", inversedBy="host") */
+    /** @ORM\ManyToOne(targetEntity="Application", inversedBy="host") */
     private ?Application $app = null;
 
     public function __construct()
