@@ -9,12 +9,12 @@ trait TimeableTrait
     /**
      * @ORM\Column(type="datetime", nullable=false)
      */
-    protected ?\DateTime $createdAt;
+    protected ?\DateTime $createdAt = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    protected ?\DateTime $updatedAt;
+    protected ?\DateTime $updatedAt = null;
 
     public function getUpdatedAt(): ?\DateTime
     {
@@ -45,7 +45,9 @@ trait TimeableTrait
      */
     public function onPrePersist(): void
     {
-        $this->createdAt = new \DateTime('now');
+        if (null === $this->createdAt) {
+            $this->createdAt = new \DateTime('now');
+        }
     }
 
     /**

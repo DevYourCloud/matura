@@ -20,7 +20,12 @@ class EncryptionService
 
     public function createConnectedDeviceHash(ConnectedDevice $connectedDevice): string
     {
-        $data = $connectedDevice->getServer()->getHost()->getDomain().$connectedDevice->getIp().$connectedDevice->getUserAgent();
+        $data = implode([
+            $connectedDevice->getServer()->getHost()->getDomain(),
+            $connectedDevice->getIp(),
+            $connectedDevice->getUserAgent(),
+            $connectedDevice->getCreatedAt()->format('Y-m-d H:i:s'),
+        ]);
 
         return hash_hmac('sha256', $data, $this->salt);
     }

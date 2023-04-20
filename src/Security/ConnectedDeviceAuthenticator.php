@@ -20,32 +20,32 @@ class ConnectedDeviceAuthenticator
     ) {
     }
 
-    public function getDevice(Server $server, ForwardedRequest $request): ?ConnectedDevice
+    public function getNewDevice(Server $server, ForwardedRequest $request): ?ConnectedDevice
     {
-        $this->logger->info(sprintf('[DEVICE AUTH] Looking for a device for request %s - %s', $request->getForwardedIp(), $request->getUserAgent()));
+        // $this->logger->info(sprintf('[DEVICE AUTH] Looking for a device for request %s - %s', $request->getForwardedIp(), $request->getUserAgent()));
 
-        /** @var ConnectedDevice $connectedDevice */
-        $connectedDevice = $this->connectedDeviceRepository->findOneBy(
-            ['ip' => $request->getForwardedIp(), 'userAgent' => $request->getUserAgent(), 'server' => $server]
-        );
+        // /** @var ConnectedDevice $connectedDevice */
+        // $connectedDevice = $this->connectedDeviceRepository->findOneBy(
+        //     ['ip' => $request->getForwardedIp(), 'userAgent' => $request->getUserAgent(), 'server' => $server]
+        // );
 
-        if (null !== $connectedDevice && !$server->isPairing()) {
-            $this->logger->info(sprintf(
-                '[DEVICE AUTH] Existing device, but requiring trusted device cookie auth - %s',
-                $connectedDevice->getHash(),
-            ));
+        // if (null !== $connectedDevice && !$server->isPairing()) {
+        //     $this->logger->info(sprintf(
+        //         '[DEVICE AUTH] Existing device, but requiring trusted device cookie auth - %s',
+        //         $connectedDevice->getHash(),
+        //     ));
 
-            return null;
-        }
+        //     return null;
+        // }
 
-        if (!$server->isPairing()) {
-            $this->logger->info(sprintf(
-                '[DEVICE AUTH] Server not in pairing mode %s',
-                $server->getHost()->getDomain(),
-            ));
+        // if (!$server->isPairing()) {
+        //     $this->logger->info(sprintf(
+        //         '[DEVICE AUTH] Server not in pairing mode %s',
+        //         $server->getHost()->getDomain(),
+        //     ));
 
-            return null;
-        }
+        //     return null;
+        // }
 
         $connectedDevice = new ConnectedDevice();
         $connectedDevice
@@ -53,6 +53,7 @@ class ConnectedDeviceAuthenticator
             ->setServer($server)
             ->setIp($request->getForwardedIp())
             ->setUserAgent($request->getUserAgent())
+            ->setCreatedAt(new \DateTime('now'))
         ;
 
         $connectedDevice->setHash($this->getDeviceHash($connectedDevice));
@@ -68,7 +69,7 @@ class ConnectedDeviceAuthenticator
         $connectedDevice->setLastAccessed(new \DateTime('now'));
 
         // Disable pairing mode after new device was added
-        $server->setPairing(false);
+        // $server->setPairing(false);
 
         $this->em->flush();
 
@@ -77,6 +78,10 @@ class ConnectedDeviceAuthenticator
 
     private function getDeviceHash(ConnectedDevice $connectedDevice): string
     {
-        return $this->encryptionService->createConnectedDeviceHash($connectedDevice);
+        try {
+            return $this->encryptionService->createConnectedDeviceHash($connectedDevice);
+        } catch (\Exception $e) {
+            dd($e);
+        }
     }
 }

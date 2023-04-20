@@ -21,6 +21,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 class ForwardedAuthAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
+        private string $trustedDeviceCookieName,
         private ConnectedDeviceAuthenticator $connectedDeviceAuthenticator,
         private LoggerInterface $logger,
         private AppContext $appContext
@@ -29,7 +30,7 @@ class ForwardedAuthAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has(ForwardedRequest::HEADER_FOR);
+        return $request->headers->has(ForwardedRequest::HEADER_FOR) && !$request->cookies->has($this->trustedDeviceCookieName);
     }
 
     public function authenticate(Request $request): Passport
@@ -38,18 +39,24 @@ class ForwardedAuthAuthenticator extends AbstractAuthenticator
 
         $this->appContext->initializeFromRequest($forwardedRequest);
 
-        $this->logger->info(sprintf('[REQUEST AUTH] Checking access for request "%s"', $forwardedRequest->getForwardedHost()));
+        // $this->logger->info(sprintf('[REQUEST AUTH] Checking access for request "%s"', $forwardedRequest->getForwardedHost()));
 
-        $server = $this->appContext->getServer();
+        // $server = $this->appContext->getServer();
 
-        if ($this->isRequestAuthorized($forwardedRequest, $server) && $this->isAppActive($forwardedRequest)) {
+        // $this->appContext->setConnectedDevice(
+        //     $this->connectedDeviceAuthenticator->getDevice($server, $forwardedRequest)
+        // );
+
+        /*if ($this->isRequestAuthorized($forwardedRequest, $server) && $this->isAppActive($forwardedRequest)) {
+            $this->appContext
             $this->logger->info(sprintf('[REQUEST AUTH] Access granted for "%s"', $forwardedRequest->getForwardedHost()));
 
             return new SelfValidatingPassport(new UserBadge($server->getUser()->getUserIdentifier()));
-        }
+        }*/
+        $this->appContext->setCreateTrustedCookie(true);
 
         throw new CustomUserMessageAuthenticationException(
-            sprintf('[REQUEST AUTH] User unauthorized to access to the endpoint %s', $forwardedRequest->getForwardedHost())
+            sprintf('[REQUEST AUTH] User unauthorized to access to the endpoint')
         );
     }
 

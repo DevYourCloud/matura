@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 class TrustedDeviceAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
-        private string $trustedDeviceHeaderName,
+        private string $trustedDeviceCookieName,
         private EncryptionService $encryptionService,
         private ConnectedDeviceRepository $connectedDeviceRepository,
         private AppContext $appContext
@@ -30,14 +30,24 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has($this->trustedDeviceHeaderName);
+        return $request->cookies->has($this->trustedDeviceCookieName);
     }
 
     public function authenticate(Request $request): Passport
     {
-        $this->appContext->initializeFromRequest(new ForwardedRequest($request));
+        $forwardedRequest = new ForwardedRequest($request);
 
-        $token = \urldecode($request->headers->get($this->trustedDeviceHeaderName));
+        try {
+            $this->appContext->initializeFromRequest($forwardedRequest);
+        } catch (\Exception $e) {
+            throw new CustomUserMessageAuthenticationException(sprintf(
+                '[COOKIE AUTH] Initialization failed : %s - %s',
+                $e->getMessage(),
+                $forwardedRequest->getForwardedHost()
+            ));
+        }
+
+        $token = \urldecode($request->cookies->get($this->trustedDeviceCookieName));
 
         try {
             $decoded = $this->encryptionService->decodeTrustedDeviceToken($token);
@@ -47,6 +57,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
 
         /** @var ?ConnectedDevice $connectedDevice */
         $connectedDevice = $this->connectedDeviceRepository->findOneBy(['hash' => $decoded]);
+
         if (null === $connectedDevice) {
             throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] No device found with hash %s', $decoded));
         }

@@ -20,6 +20,8 @@ class AppContext
 
     private bool $accessGranted = false;
 
+    private bool $createTrustedCookie = false;
+
     public function __construct(private HostRepository $hostRepository)
     {
     }
@@ -35,6 +37,12 @@ class AppContext
         }
 
         $host = $this->hostRepository->findOneByDomain($forwardedRequest->getForwardedHost());
+
+        if (null === $host) {
+            throw new \Exception(
+                sprintf('Host not found: %s', $forwardedRequest->getForwardedHost())
+            );
+        }
 
         if (null !== $host->getServer()) {
             $this->server = $host->getServer();
@@ -108,6 +116,18 @@ class AppContext
     public function setAccessGranted(bool $accessGranted): self
     {
         $this->accessGranted = $accessGranted;
+
+        return $this;
+    }
+
+    public function createTrustedCookie(): bool
+    {
+        return $this->createTrustedCookie;
+    }
+
+    public function setCreateTrustedCookie(bool $createCookie): self
+    {
+        $this->createTrustedCookie = $createCookie;
 
         return $this;
     }
