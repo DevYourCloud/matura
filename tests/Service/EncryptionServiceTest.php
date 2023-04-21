@@ -3,6 +3,7 @@
 namespace App\Tests\Service;
 
 use App\Entity\ConnectedDevice;
+use App\Entity\Host;
 use App\Entity\Server;
 use App\Service\EncryptionService;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -25,13 +26,17 @@ class EncryptionServiceTest extends KernelTestCase
     {
         $ip = '123.123.123.123';
         $userAgent = 'Custom UserAgent';
+        $host = new Host();
+        $host->setDomain('slug.devyour.cloud');
+
         $server = new Server();
-        $server->createHost('slug.devyour.cloud');
+        $server->setHost($host);
 
         $connectedDevice = (new ConnectedDevice())
             ->setIp($ip)
             ->setUserAgent($userAgent)
             ->setServer($server)
+            ->setCreatedAt(new \DateTime('now'))
         ;
 
         $hash = $this->encryptionService->createConnectedDeviceHash($connectedDevice);
@@ -51,7 +56,10 @@ class EncryptionServiceTest extends KernelTestCase
 
         self::assertNotEquals($hash, $differentHash);
 
-        $server->createHost('new-slug.devyour.cloud');
+        $host = new Host();
+        $host->setDomain('new-slug.devyour.cloud');
+        $server->setHost($host);
+
         $differentHash = $this->encryptionService->createConnectedDeviceHash($connectedDevice);
 
         self::assertNotEquals($hash, $differentHash);
@@ -63,13 +71,18 @@ class EncryptionServiceTest extends KernelTestCase
 
         $ip = '123.123.123.123';
         $userAgent = 'Custom UserAgent';
+
+        $host = new Host();
+        $host->setDomain('slug.devyour.cloud');
+
         $server = new Server();
-        $server->createHost('slug.devyour.cloud');
+        $server->setHost($host);
 
         $connectedDevice = (new ConnectedDevice())
             ->setIp($ip)
             ->setUserAgent($userAgent)
             ->setServer($server)
+            ->setCreatedAt(new \DateTime('now'))
         ;
 
         $this->encryptionService->createTrustedDeviceToken($connectedDevice);
@@ -79,13 +92,18 @@ class EncryptionServiceTest extends KernelTestCase
     {
         $ip = '123.123.123.123';
         $userAgent = 'Custom UserAgent';
+
+        $host = new Host();
+        $host->setDomain('slug.devyour.cloud');
+
         $server = new Server();
-        $server->createHost('slug.devyour.cloud');
+        $server->setHost($host);
 
         $connectedDevice = (new ConnectedDevice())
             ->setIp($ip)
             ->setUserAgent($userAgent)
             ->setServer($server)
+            ->setCreatedAt(new \DateTime('now'))
         ;
 
         $hash = $this->encryptionService->createConnectedDeviceHash($connectedDevice);

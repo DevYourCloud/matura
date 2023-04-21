@@ -22,9 +22,6 @@ class TrustedDeviceCookieEventListener
 
     public function __invoke(ResponseEvent $responseEvent)
     {
-        $response = $responseEvent->getResponse();
-        $response->headers->setCookie(new Cookie('test', 'test'));
-
         if (!$this->appContext->hasValidForwardedAuthRequest()) {
             return;
         }
@@ -33,11 +30,7 @@ class TrustedDeviceCookieEventListener
             return;
         }
 
-        // $trustedCookie = $this->appContext->getForwardedRequest()->getTrustedDeviceCookie($this->trustedDeviceCookieName);
-
-        // if (null !== $trustedCookie) {
-        //     return;
-        // }
+        $response = $responseEvent->getResponse();
 
         $device = $this->connectedDeviceAuthenticator->getNewDevice(
             $this->appContext->getServer(),
@@ -52,12 +45,10 @@ class TrustedDeviceCookieEventListener
             \urlencode($token),
             $this->encryptionService->getTokenExpirationDate(),
             '/',
-            null,
+            $this->appContext->getServer()->getHost()->getDomain(),
             true,
         );
 
         $response->headers->setCookie($cookie);
-
-        // $response->headers->add(['X-Auth-ID' => $token]);
     }
 }

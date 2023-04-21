@@ -16,6 +16,7 @@ class UserFixtures extends Fixture
             ->setFullName('Nick')
             ->setRoles(['ROLE_USER'])
             ->setPassword('test')
+            ->setActive(true)
         ;
 
         $this->addReference(self::getReferenceKey('nick'), $user);
@@ -26,6 +27,7 @@ class UserFixtures extends Fixture
             ->setFullName('Admin')
             ->setRoles(['ROLE_USER', 'ROLE_ADMIN'])
             ->setPassword('$2y$13$ZNY/SuyjS2i2jd76KPsEHeYdFO.SRcIRr3kpNLaMDkAorIrDdGM6m') // adminadmin
+            ->setActive(true)
         ;
 
         $this->addReference(self::getReferenceKey('admin'), $admin);

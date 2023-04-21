@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Host;
 use App\Entity\Server;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -13,59 +14,89 @@ class ServerFixtures extends Fixture implements DependentFixtureInterface
     {
         $user = $this->getReference(UserFixtures::getReferenceKey('nick'));
 
+        $host = new Host();
+        $host->setDomain('nick.devyour.cloud');
+
+        $nextcloudApp = $this->getReference(ApplicationFixtures::getReferenceKey('nextcloud'));
+
         $server = new Server();
         $server
             ->setName("Nick's Server")
-            ->createHost('nick.devyour.cloud')
+            ->setHost($host)
             ->setActive(true)
             ->setUser($user)
-            ->addApp($this->getReference(ApplicationFixtures::getReferenceKey('nextcloud')))
+            ->addApp($nextcloudApp)
         ;
+        $nextcloudApp->createHost();
         $this->addReference(self::getReferenceKey('nick'), $server);
+
+        $host = new Host();
+        $host->setDomain('unauthorized.devyour.cloud');
+
+        $unauthorizedApp = $this->getReference(ApplicationFixtures::getReferenceKey('unauthorized'));
 
         $unauthorizedServer = new Server();
         $unauthorizedServer
             ->setName('Unauthorized Server')
-            ->createHost('unauthorized.devyour.cloud')
+            ->setHost($host)
             ->setActive(true)
             ->setUser($user)
-            ->addApp($this->getReference(ApplicationFixtures::getReferenceKey('unauthorized')))
+            ->addApp($unauthorizedApp)
         ;
+
+        $unauthorizedApp->createHost();
         $this->addReference(self::getReferenceKey('unauthorized'), $unauthorizedServer);
+
+        $host = new Host();
+        $host->setDomain('authorized.devyour.cloud');
+
+        $authorizedApp = $this->getReference(ApplicationFixtures::getReferenceKey('authorized'));
 
         $authorizedServer = new Server();
         $authorizedServer
             ->setName('Authorized Server')
-            ->createHost('authorized.devyour.cloud')
+            ->setHost($host)
             ->setActive(true)
             ->setUser($user)
-            ->addApp($this->getReference(ApplicationFixtures::getReferenceKey('authorized')))
+            ->addApp($authorizedApp)
             ->addConnectedDevices($this->getReference(ConnectedDeviceFixtures::getReferenceKey('authorized')))
         ;
 
+        $authorizedApp->createHost();
         $this->addReference(self::getReferenceKey('authorized'), $authorizedServer);
 
+        $host = new Host();
+        $host->setDomain('symfony-request.devyour.cloud');
+
+        $symfonyRequestApp = $this->getReference(ApplicationFixtures::getReferenceKey('symfony-request'));
         $symfonyRequestServer = new Server();
         $symfonyRequestServer
             ->setName('Symfony Request Server')
-            ->createHost('symfony-request.devyour.cloud')
+            ->setHost($host)
             ->setActive(true)
             ->setUser($user)
-            ->addApp($this->getReference(ApplicationFixtures::getReferenceKey('symfony-request')))
+            ->addApp($symfonyRequestApp)
             ->addConnectedDevices($this->getReference(ConnectedDeviceFixtures::getReferenceKey('symfony-request')))
         ;
 
+        $symfonyRequestApp->createHost();
         $this->addReference(self::getReferenceKey('symfony-request'), $symfonyRequestServer);
 
+        $host = new Host();
+        $host->setDomain('pairing-request.devyour.cloud');
+
+        $pairingRequestApp = $this->getReference(ApplicationFixtures::getReferenceKey('pairing-request'));
         $pairingServer = new Server();
         $pairingServer
             ->setName('Pairing Server')
-            ->createHost('pairing-request.devyour.cloud')
+            ->setHost($host)
             ->setActive(true)
             ->setPairing(true)
             ->setUser($user)
-            ->addApp($this->getReference(ApplicationFixtures::getReferenceKey('pairing-request')))
+            ->addApp($pairingRequestApp)
         ;
+
+        $pairingRequestApp->createHost();
 
         $this->addReference(self::getReferenceKey('pairing-request'), $pairingServer);
     }

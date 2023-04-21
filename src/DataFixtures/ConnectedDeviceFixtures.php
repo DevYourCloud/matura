@@ -25,6 +25,7 @@ class ConnectedDeviceFixtures extends Fixture
             ->setIp('127.0.0.1')
             ->setUserAgent('Symfony BrowserKit')
             ->setHash('c495b608302069d9d983e4dca718be3a7bcd55b0dfc542f20e00021d98dbaa97')
+            ->setCreatedAt(new \DateTime('2021-01-01 12:00:00'))
             ->setActive(true)
         ;
 

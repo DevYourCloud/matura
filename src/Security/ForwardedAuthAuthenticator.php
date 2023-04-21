@@ -30,6 +30,8 @@ class ForwardedAuthAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
+        return false;
+
         return $request->headers->has(ForwardedRequest::HEADER_FOR) && !$request->cookies->has($this->trustedDeviceCookieName);
     }
 

@@ -17,6 +17,7 @@ class ApplicationFixtures extends Fixture
             ->setName('nextcloud')
             ->setPort(80)
         ;
+
         $this->addReference(self::getReferenceKey('nextcloud'), $nextcloud);
 
         // UnauthorizedServer

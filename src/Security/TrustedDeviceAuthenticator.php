@@ -30,7 +30,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return $request->cookies->has($this->trustedDeviceCookieName);
+        return $request->headers->has(ForwardedRequest::HEADER_FOR);
     }
 
     public function authenticate(Request $request): Passport
@@ -45,6 +45,20 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
                 $e->getMessage(),
                 $forwardedRequest->getForwardedHost()
             ));
+        }
+
+        if (!$request->cookies->has($this->trustedDeviceCookieName)) {
+            if ($this->appContext->getServer()->isPairing()) {
+                $this->appContext->setCreateTrustedCookie(true);
+
+                throw new CustomUserMessageAuthenticationException(
+                    sprintf('[COOKIE AUTH] No trusted cookie, setting up for creation')
+                );
+            }
+
+            throw new CustomUserMessageAuthenticationException(
+                sprintf('[COOKIE AUTH] Server not in pairing mode, no trusted device creation')
+            );
         }
 
         $token = \urldecode($request->cookies->get($this->trustedDeviceCookieName));

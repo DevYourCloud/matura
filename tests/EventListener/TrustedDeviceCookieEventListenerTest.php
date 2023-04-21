@@ -3,9 +3,10 @@
 namespace App\Tests\EventListener;
 
 use App\Context\AppContext;
-use App\Entity\ConnectedDevice;
+use App\DataFixtures\MainFixtures;
 use App\EventListener\TrustedDeviceCookieEventListener;
 use App\Model\ForwardedRequest;
+use App\Security\ConnectedDeviceAuthenticator;
 use App\Service\EncryptionService;
 use App\Tests\FixtureAwareTestCase;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -23,17 +24,26 @@ class TrustedDeviceCookieEventListenerTest extends FixtureAwareTestCase
     private int $tokenLifetime = 0;
 
     private EncryptionService $encryptionService;
+    private ConnectedDeviceAuthenticator $trustedDeviceAuthenticator;
+
+    private string $trustedCookieName;
 
     public function setUp(): void
     {
+        parent::setUp();
+
+        $this->addFixture(new MainFixtures());
+        $this->executeFixtures();
+
         $this->tokenLifetime = $this->getContainer()->getParameter('token_lifetime');
 
-        // @var EncryptionService $encryptionService
         $this->encryptionService = $this->getContainer()->get(EncryptionService::class);
+        $this->trustedDeviceAuthenticator = $this->getContainer()->get(ConnectedDeviceAuthenticator::class);
+        $this->trustedCookieName = static::getContainer()->getParameter('trusted_device_cookie_name');
     }
 
     /** @group nick */
-    public function testCookieAddedOnGrantedAccess(): void
+    public function testCookieAddedOnRequested(): void
     {
         $host = 'authorized.devyour.cloud';
 
@@ -46,15 +56,21 @@ class TrustedDeviceCookieEventListenerTest extends FixtureAwareTestCase
             'X-Forwarded-For' => '100.111.222.333',
             'User-Agent' => 'Firefox',
         ]);
-        $hash = 'HASH_TEST';
-        $appContext = $this->createAppContext($request, $hash, true);
+        $appContext = $this->createAppContext($request, true);
 
         $responseEvent = new ResponseEvent(self::$kernel, $request, 0, new Response());
-        $eventListener = new TrustedDeviceCookieEventListener($appContext, $this->encryptionService, '_trusted_cookie');
+        $eventListener = new TrustedDeviceCookieEventListener(
+            $appContext,
+            $this->encryptionService,
+            $this->trustedDeviceAuthenticator,
+            $this->trustedCookieName
+        );
 
         $eventListener->__invoke($responseEvent);
 
         $response = $responseEvent->getResponse();
+
+        self::assertCount(1, $response->headers->getCookies());
         $cookie = $response->headers->getCookies()[0];
 
         self::assertInstanceOf(Cookie::class, $cookie);
@@ -69,12 +85,12 @@ class TrustedDeviceCookieEventListenerTest extends FixtureAwareTestCase
 
         self::assertEquals($expiryTime->format('Y-m-d'), $cookieTime->format('Y-m-d'));
 
-        $token = $this->encryptionService->decodeTrustedDeviceToken($cookie->getValue());
+        $token = $this->encryptionService->decodeTrustedDeviceToken(\urldecode($cookie->getValue()));
 
-        self::assertEquals('HASH_TEST', $token);
+        self::assertNotNull($token);
     }
 
-    public function testNoCookieOnNotGrantedAccess(): void
+    public function testNoCookieOnUnauthorizedAccess(): void
     {
         $host = 'unauthorized.devyour.cloud';
 
@@ -87,11 +103,15 @@ class TrustedDeviceCookieEventListenerTest extends FixtureAwareTestCase
             'X-Forwarded-For' => '100.111.222.333',
             'User-Agent' => 'Firefox',
         ]);
-        $hash = 'HASH_TEST_2';
-        $appContext = $this->createAppContext($request, $hash, false);
+        $appContext = $this->createAppContext($request, false);
 
         $responseEvent = new ResponseEvent(self::$kernel, $request, 0, new Response());
-        $eventListener = new TrustedDeviceCookieEventListener($appContext, $this->encryptionService, '_trusted_cookie');
+        $eventListener = new TrustedDeviceCookieEventListener(
+            $appContext,
+            $this->encryptionService,
+            $this->trustedDeviceAuthenticator,
+            $this->trustedCookieName
+        );
 
         $eventListener->__invoke($responseEvent);
 
@@ -99,17 +119,12 @@ class TrustedDeviceCookieEventListenerTest extends FixtureAwareTestCase
         self::assertCount(0, $response->headers->getCookies());
     }
 
-    private function createAppContext(Request $request, string $deviceHash, bool $access): AppContext
+    private function createAppContext(Request $request, bool $createCookie): AppContext
     {
-        $connectedDeviceSample = (new ConnectedDevice())
-            ->setHash($deviceHash)
-        ;
-
         /** @var AppContext $appContext */
         $appContext = $this->getContainer()->get(AppContext::class);
         $appContext->initializeFromRequest(new ForwardedRequest($request));
-        $appContext->setConnectedDevice($connectedDeviceSample);
-        $appContext->setAccessGranted($access);
+        $appContext->setCreateTrustedCookie($createCookie);
 
         return $appContext;
     }

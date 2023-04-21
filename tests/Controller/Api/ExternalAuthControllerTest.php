@@ -9,6 +9,7 @@ use App\Repository\HostRepository;
 use App\Service\EncryptionService;
 use App\Tests\FixtureAwareWebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\BrowserKit\Cookie as BrowserKitCookie;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -21,7 +22,6 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
     private HostRepository $hostRepository;
     private EncryptionService $encryptionService;
 
-    private string $trustedHeaderName;
     private string $trustedCookieName;
 
     public function setUp(): void
@@ -33,7 +33,6 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 
         $this->hostRepository = static::getContainer()->get(HostRepository::class);
         $this->encryptionService = static::getContainer()->get(EncryptionService::class);
-        $this->trustedHeaderName = static::getContainer()->getParameter('trusted_device_header_name');
         $this->trustedCookieName = static::getContainer()->getParameter('trusted_device_cookie_name');
     }
 
@@ -70,7 +69,7 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         $server = $host->getServer();
 
         self::assertEquals(1, $server->getConnectedDevices()->count());
-        $connectedDevice = $server->getConnectedDevices()[0];
+        $connectedDevice = $server->getConnectedDevices()->first();
 
         $token = $this->encryptionService->createTrustedDeviceToken($connectedDevice);
 
@@ -104,19 +103,13 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         $response = $this->request($host, $path, '127.0.0.1');
 
         // Then
-        self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
 
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get(EntityManagerInterface::class);
         $em->refresh($server);
 
         self::assertEquals(1, $server->getConnectedDevices()->count());
-
-        /** @var ConnectedDevice $connectedDevice */
-        $connectedDevice = $server->getConnectedDevices()->first();
-        self::assertTrue($connectedDevice->isActive());
-
-        self::assertFalse($server->isPairing());
 
         $cookie = $this->client->getCookieJar()->get($this->trustedCookieName);
         self::assertNotNull($cookie);
@@ -133,7 +126,9 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         ];
 
         if ($token) {
-            $params['HTTP_'.$this->trustedHeaderName] = urlencode($token);
+            $this->client->getCookieJar()->set(
+                new BrowserKitCookie($this->trustedCookieName, \urlencode($token), strtotime('+1 day'))
+            );
         }
 
         $this->client->request('GET', '/auth', [], [], $params);

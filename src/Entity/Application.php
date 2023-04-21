@@ -138,7 +138,6 @@ class Application
 
         $host->setDomain($appDomain);
         $host->setApp($this);
-        $host->setServer($this->server);
         $host->setUpdatedAt(new \DateTime('now'));
 
         $this->host = $host;

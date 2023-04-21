@@ -46,9 +46,7 @@ class AppContext
 
         if (null !== $host->getServer()) {
             $this->server = $host->getServer();
-        }
-
-        if (null !== $host->getApp()) {
+        } elseif (null !== $host->getApp()) {
             $this->app = $host->getApp();
             $this->server = $host->getApp()->getServer();
         }
