@@ -53,7 +53,6 @@ exec:
 exec-nodejs:
 	@$(COMPOSE) exec $(NODEJS) $(NODEJS_EXEC)
 
-
 .PHONY: mysql
 mysql:
 	$(eval db_name = $(shell $(COMPOSE) exec $(DATABASE) bash -c 'echo $$MYSQL_DATABASE'))
@@ -91,7 +90,7 @@ phpstan:
 
 .PHONY: phpunit
 phpunit:
-	@$(COMPOSE) exec --user=$(user) -e APP_ENV=test $(WEB) php bin/phpunit 
+	@$(COMPOSE) exec --user=$(user) -e APP_ENV=test $(WEB) php bin/phpunit
 
 .PHONY: fixture
 fixture:

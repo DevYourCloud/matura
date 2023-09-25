@@ -30,11 +30,11 @@ services:
     build: docker/nginx
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.devyourcloud.rule=Host(`matura.devyour.cloud`)"
-      - "traefik.http.routers.devyourcloud.entrypoints=web"
-      - "traefik.http.routers.devyourcloud-secure.rule=Host(`matura.devyour.cloud`)"
-      - "traefik.http.routers.devyourcloud-secure.tls=true"
-      - "traefik.http.routers.devyourcloud-secure.entrypoints=websecure"
+      - "traefik.http.routers.matura.rule=Host(`matura.devyour.cloud`)"
+      - "traefik.http.routers.matura.entrypoints=web"
+      - "traefik.http.routers.matura-secure.rule=Host(`matura.devyour.cloud`)"
+      - "traefik.http.routers.matura-secure.tls=true"
+      - "traefik.http.routers.matura-secure.entrypoints=websecure"
     volumes:
       - ./public:/var/www/public:ro
     depends_on:
