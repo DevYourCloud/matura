@@ -17,36 +17,10 @@ class ConnectedDeviceAuthenticator
         private EncryptionService $encryptionService,
         private EntityManagerInterface $em,
         private LoggerInterface $logger
-    ) {
-    }
+    ) {}
 
     public function getNewDevice(Server $server, ForwardedRequest $request): ?ConnectedDevice
     {
-        // $this->logger->info(sprintf('[DEVICE AUTH] Looking for a device for request %s - %s', $request->getForwardedIp(), $request->getUserAgent()));
-
-        // /** @var ConnectedDevice $connectedDevice */
-        // $connectedDevice = $this->connectedDeviceRepository->findOneBy(
-        //     ['ip' => $request->getForwardedIp(), 'userAgent' => $request->getUserAgent(), 'server' => $server]
-        // );
-
-        // if (null !== $connectedDevice && !$server->isPairing()) {
-        //     $this->logger->info(sprintf(
-        //         '[DEVICE AUTH] Existing device, but requiring trusted device cookie auth - %s',
-        //         $connectedDevice->getHash(),
-        //     ));
-
-        //     return null;
-        // }
-
-        // if (!$server->isPairing()) {
-        //     $this->logger->info(sprintf(
-        //         '[DEVICE AUTH] Server not in pairing mode %s',
-        //         $server->getHost()->getDomain(),
-        //     ));
-
-        //     return null;
-        // }
-
         $connectedDevice = new ConnectedDevice();
         $connectedDevice
             ->setActive(true)
@@ -54,6 +28,8 @@ class ConnectedDeviceAuthenticator
             ->setIp($request->getForwardedIp())
             ->setUserAgent($request->getUserAgent())
             ->setCreatedAt(new \DateTime('now'))
+            ->setAccessCode($this->encryptionService->createAccessCode())
+            ->setAccessCodeGeneratedAt(new \DateTime('now'))
         ;
 
         $connectedDevice->setHash($this->getDeviceHash($connectedDevice));
@@ -81,7 +57,7 @@ class ConnectedDeviceAuthenticator
         try {
             return $this->encryptionService->createConnectedDeviceHash($connectedDevice);
         } catch (\Exception $e) {
-            dd($e);
+            throw new \Exception('Unable to create device hash : '.$e->getMessage(), $e->getCode(), $e);
         }
     }
 }

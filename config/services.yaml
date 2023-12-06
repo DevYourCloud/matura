@@ -1,6 +1,7 @@
 parameters:
   trusted_device_version: 1
   token_lifetime: 30 #days
+  access_code_duration: 'PT15M'
   encryption_key: '%env(APP_ENCRYPTION_KEY)%'
   trusted_device_cookie_name: '_trusted_device'
   trusted_device_header_name: 'x-trusted-device'
@@ -13,6 +14,7 @@ services:
         bind:
             $trustedDeviceCookieName: '%trusted_device_cookie_name%'
             $trustedDeviceHeaderName: '%trusted_device_header_name%'
+            $appHost: '%env(APP_HOST)%'
 
     App\:
         resource: '../src/'

@@ -17,8 +17,7 @@ class TrustedDeviceCookieEventListener
         private EncryptionService $encryptionService,
         private ConnectedDeviceAuthenticator $connectedDeviceAuthenticator,
         private string $trustedDeviceCookieName,
-    ) {
-    }
+    ) {}
 
     public function __invoke(ResponseEvent $responseEvent)
     {
@@ -32,12 +31,7 @@ class TrustedDeviceCookieEventListener
 
         $response = $responseEvent->getResponse();
 
-        $device = $this->connectedDeviceAuthenticator->getNewDevice(
-            $this->appContext->getServer(),
-            $this->appContext->getForwardedRequest()
-        );
-
-        $token = $this->encryptionService->createTrustedDeviceToken($device);
+        $token = $this->encryptionService->createTrustedDeviceToken($this->appContext->getConnectedDevice());
 
         // Set the cookie
         $cookie = new Cookie(

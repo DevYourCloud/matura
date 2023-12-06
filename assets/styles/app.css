@@ -15,6 +15,17 @@ Color theme : https://colorhunt.co/palette/0000001500503f0071fb2576
   --verdigris: #70abafff;
 }
 
+.color-red {
+  color: var(--cornell-red);
+}
+
+
+body {
+  background-image: url("../images/background.svg");
+  background-size: 50%;
+  background-repeat: repeat;
+}
+
 /* Grid */
 body > main {
     display: flex;
@@ -81,7 +92,7 @@ body > main {
   }
   
   /* Hero Image */
-  article div:nth-of-type(2) {
+  article.login div:nth-of-type(2) {
     display: none;
     background-color: #374956;
     background-image: url("../images/login-image.jpg");
@@ -124,5 +135,9 @@ form .error {
 }
 
 .login input {
+  border-left: 2px solid var(--cornell-red);
+}
+
+.border-left-red {
   border-left: 2px solid var(--cornell-red);
 }

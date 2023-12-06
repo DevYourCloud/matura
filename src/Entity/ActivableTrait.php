@@ -6,9 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait ActivableTrait
 {
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     protected bool $active = false;
 
     public function isActive(): bool

@@ -1,5 +1,4 @@
 security:
-  enable_authenticator_manager: true
   password_hashers:
     Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
     App\Entity\User:
@@ -9,26 +8,26 @@ security:
     app_user_provider:
       entity:
         class: App\Entity\User
-        
+
   firewalls:
     login:
       pattern: ^/api/login
       stateless: true
       json_login:
-          check_path: /api/login_check
-          success_handler: lexik_jwt_authentication.handler.authentication_success
-          failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        check_path: /api/login_check
+        success_handler: lexik_jwt_authentication.handler.authentication_success
+        failure_handler: lexik_jwt_authentication.handler.authentication_failure
     api:
-        pattern:   ^/api
-        stateless: true
-        jwt: ~
+      pattern: ^/api
+      stateless: true
+      jwt: ~
 
     dev:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
 
     forwardAuth:
-      pattern: '^/auth'
+      pattern: "^/auth"
       stateless: true
       custom_authenticators:
         - App\Security\TrustedDeviceAuthenticator
@@ -46,9 +45,8 @@ security:
         path: app_logout
         target: app_login
       remember_me:
-        secret:   '%kernel.secret%' # required
+        secret: "%kernel.secret%" # required
         lifetime: 604800 # 1 week in seconds
-    
 
   access_control:
     - { path: ^/login, roles: PUBLIC_ACCESS }

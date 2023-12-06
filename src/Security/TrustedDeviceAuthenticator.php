@@ -3,14 +3,17 @@
 namespace App\Security;
 
 use App\Context\AppContext;
-use App\Entity\ConnectedDevice;
+use App\Factory\ConnectedDeviceFactory;
 use App\Model\ForwardedRequest;
-use App\Repository\ConnectedDeviceRepository;
-use App\Service\EncryptionService;
+use App\Service\ConnectedDeviceManager;
+use App\Voter\AccessVoter;
+use App\Exception\DecodingTokenFailed;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
@@ -22,11 +25,12 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
         private string $trustedDeviceCookieName,
-        private EncryptionService $encryptionService,
-        private ConnectedDeviceRepository $connectedDeviceRepository,
-        private AppContext $appContext
-    ) {
-    }
+        private ConnectedDeviceManager $connectedDeviceManager,
+        private AuthorizationCheckerInterface $authorizationChecker,
+        private ConnectedDeviceFactory $connectedDeviceFactory,
+        private AppContext $appContext,
+        private LoggerInterface $logger
+    ) {}
 
     public function supports(Request $request): ?bool
     {
@@ -36,6 +40,11 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
     public function authenticate(Request $request): Passport
     {
         $forwardedRequest = new ForwardedRequest($request);
+
+        $this->logger->debug(json_encode($request->headers->all()));
+        $this->logger->debug(json_encode($request->query->all()));
+        $this->logger->debug(json_encode($request->request->all()));
+        $this->logger->debug(json_encode($request->getContent()));
 
         try {
             $this->appContext->initializeFromRequest($forwardedRequest);
@@ -51,40 +60,47 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
             if ($this->appContext->getServer()->isPairing()) {
                 $this->appContext->setCreateTrustedCookie(true);
 
+                $this->logger->info(sprintf(
+                    '[DEVICE AUTH] Pairing active, creating a new device for request %s - %s',
+                    $forwardedRequest->getForwardedIp(),
+                    $forwardedRequest->getUserAgent()
+                ));
+
+                // @todo nick Persist the new device with CQRS
+                $connectedDevice = $this->connectedDeviceFactory->build($forwardedRequest, $this->appContext->getServer());
+
                 throw new CustomUserMessageAuthenticationException(
-                    sprintf('[COOKIE AUTH] No trusted cookie, setting up for creation')
+                    '[COOKIE AUTH] No trusted cookie, setting up for creation'
                 );
             }
 
             throw new CustomUserMessageAuthenticationException(
-                sprintf('[COOKIE AUTH] Server not in pairing mode, no trusted device creation')
+                '[COOKIE AUTH] Server not in pairing mode, no trusted device creation'
             );
         }
 
         $token = \urldecode($request->cookies->get($this->trustedDeviceCookieName));
+        $connectedDevice = null;
 
         try {
-            $decoded = $this->encryptionService->decodeTrustedDeviceToken($token);
-        } catch (\Exception $e) {
-            throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] Encryption service : %s - %s', $e->getMessage(), $token));
+            $this->connectedDeviceManager->decodeAndFindConnectedDevice($token);
+        } catch (DecodingTokenFailed $e) {
+            throw new CustomUserMessageAuthenticationException($e->getMessage());
         }
 
-        /** @var ?ConnectedDevice $connectedDevice */
-        $connectedDevice = $this->connectedDeviceRepository->findOneBy(['hash' => $decoded]);
-
         if (null === $connectedDevice) {
-            throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] No device found with hash %s', $decoded));
+            throw new CustomUserMessageAuthenticationException('[COOKIE AUTH] No device found');
         }
 
         $server = $connectedDevice->getServer();
 
         $this->appContext->setConnectedDevice($connectedDevice);
 
-        if ($connectedDevice->isActive() && $server->isActive()) {
+        if ($this->authorizationChecker->isGranted(AccessVoter::ACCESS_ATTR, $this->appContext)) {
             return new SelfValidatingPassport(new UserBadge($server->getUser()->getUserIdentifier()));
         }
 
-        throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] Server or device not active for hash %s', $decoded));
+        throw new CustomUserMessageAuthenticationException('[COOKIE AUTH] Server or device not active');
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
@@ -96,6 +112,6 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        return new JsonResponse(null, Response::HTTP_UNAUTHORIZED);
+        return null;
     }
 }

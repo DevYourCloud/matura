@@ -3,11 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\ConnectedDevice;
-use App\Repository\ConnectedDeviceRepository;
 use App\Service\EncryptionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository as ORMEntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;

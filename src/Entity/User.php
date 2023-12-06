@@ -4,20 +4,17 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @ORM\Entity(repositoryClass=UserRepository::class)
- *
- * @ORM\Table(name="user")
- *
- * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
- *
- * @ORM\HasLifecycleCallbacks()
- */
+
+#[ORM\Table(name: 'user')]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
+#[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     use TimeableTrait;
@@ -27,45 +24,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public const ROLE_ADMIN = 'ROLE_ADMIN';
 
-    /**
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(type="integer")
-     */
+    
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     private $fullName;
 
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private $email;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     private $roles = [];
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     private string $password;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Server", mappedBy="user")
-     *
-     * @var ArrayCollection
-     */
-    private $servers;
+    #[ORM\OneToMany(targetEntity: 'Server', mappedBy: 'user')]
+    private Collection $servers;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\OneToMany(targetEntity: 'ConnectedDevice', mappedBy: 'user')]
+    private Collection $connectedDevices;
+
+    #[ORM\Column(type: 'boolean')]
     private bool $isVerified = false;
 
     private ?string $plainPassword = null;
@@ -73,6 +56,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->servers = new ArrayCollection();
+        $this->connectedDevices = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -161,7 +145,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return null;
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         $this->plainPassword = null;
     }
@@ -212,5 +196,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->plainPassword = $plainPassword;
 
         return $this;
+    }
+
+    public function isAdmin(): bool
+    {
+        return \in_array(self::ROLE_ADMIN, $this->getRoles(), true);
     }
 }

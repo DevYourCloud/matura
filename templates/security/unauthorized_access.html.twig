@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.front.unauthorize.title'|trans }}
+{% endblock %}
+
+{% block body %}
+
+    <article class="grid border-left-red">
+        <div>
+            <hgroup>
+                <h1 class="text-center">
+                    <span class="color-red">4</span>
+                    0
+                    <span class="color-red">1</span> 
+                    - <span class="color-red">{{ 'app.front.unauthorize.unauthorize.first_letter'|trans }}</span>{{ 'app.front.unauthorize.unauthorize.rest'|trans }} <span class="color-red">{{ 'app.front.unauthorize.access.first_letter'|trans }}</span>{{ 'app.front.unauthorize.access.rest'|trans }}
+                </h1>
+                <h2 class="text-center">{{ 'app.front.unauthorize.help_text'|trans }}</h2>
+            </hgroup>
+
+            <div>
+                {% if device is not null %}
+                    <p class="text-center">{{ 'app.front.unauthorize.enter_code'|trans }}</p>
+                    <hgroup>
+                        {{ device.accessCode }}
+                    </hgroup>
+                {% else %}
+                    <p class="text-center">{{ 'app.front.unauthorize.activate_pairing'|trans }}</p>
+                {% endif %}
+            </div>
+
+            <div class="text-center">
+                <a href="{{ appHost }}" target="_blank" alt="Matura" role="button">{{ 'app.front.unauthorize.submit'|trans }}</a>
+            </div>
+        </div>
+    </article>
+
+{% endblock %}

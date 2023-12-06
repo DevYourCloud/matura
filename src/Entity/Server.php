@@ -6,58 +6,40 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ServerRepository")
- *
- * @ORM\Table(name="server")
- *
- * @ORM\HasLifecycleCallbacks()
- */
+
+#[ORM\Table(name: 'server')]
+#[ORM\Entity(repositoryClass: 'App\Repository\ServerRepository')]
+#[ORM\HasLifecycleCallbacks]
 class Server
 {
     use TimeableTrait;
     use ActivableTrait;
 
-    /**
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(type="integer")
-     */
+    
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     protected ?int $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected ?string $name;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $description;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="servers")
-     */
+    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'servers')]
     protected ?User $user;
 
-    /** @ORM\OneToOne(targetEntity="Host", mappedBy="server", cascade={"persist", "remove"}) */
+    #[ORM\OneToOne(targetEntity: 'Host', mappedBy: 'server', cascade: ['persist', 'remove'])]
     protected Host $host;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $pairing = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Application", mappedBy="server", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: 'Application', mappedBy: 'server', cascade: ['persist', 'remove'])]
     private Collection $apps;
 
-    /**
-     * @ORM\OneToMany(targetEntity="ConnectedDevice", mappedBy="server", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: 'ConnectedDevice', mappedBy: 'server', cascade: ['persist', 'remove'])]
     private Collection $connectedDevices;
 
     public function __construct()

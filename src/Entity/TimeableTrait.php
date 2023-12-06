@@ -6,14 +6,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 trait TimeableTrait
 {
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     protected ?\DateTime $createdAt = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?\DateTime $updatedAt = null;
 
     public function getUpdatedAt(): ?\DateTime
@@ -40,9 +36,7 @@ trait TimeableTrait
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist
-     */
+    #[ORM\PrePersist]
     public function onPrePersist(): void
     {
         if (null === $this->createdAt) {
@@ -50,9 +44,7 @@ trait TimeableTrait
         }
     }
 
-    /**
-     * @ORM\PreUpdate
-     */
+    #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
         $this->updatedAt = new \DateTime('now');

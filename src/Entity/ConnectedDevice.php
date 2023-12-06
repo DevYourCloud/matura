@@ -4,58 +4,51 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ConnectedDeviceRepository")
- *
- * @ORM\Table(name="connected_device")
- *
- * @ORM\HasLifecycleCallbacks()
- */
+
+#[ORM\Table(name: 'connected_device')]
+#[ORM\Entity(repositoryClass: 'App\Repository\ConnectedDeviceRepository')]
+#[ORM\HasLifecycleCallbacks]
 class ConnectedDevice
 {
     use TimeableTrait;
     use ActivableTrait;
 
-    /**
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(type="integer")
-     */
+    
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     protected ?int $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $ip;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $userAgent;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $hash = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?\DateTime $lastAccessed;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Server", inversedBy="connectedDevices")
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
+    protected ?string $accessCode = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    protected ?\DateTime $accessCodeGeneratedAt = null;
+
+    #[ORM\ManyToOne(targetEntity: 'Server', inversedBy: 'connectedDevices')]
     protected Server $server;
+
+    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'connectedDevices')]
+    protected ?User $user;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId($id): self
+    public function setId(int $id): self
     {
         $this->id = $id;
 
@@ -118,6 +111,35 @@ class ConnectedDevice
     public function setUserAgent(string $userAgent): self
     {
         $this->userAgent = $userAgent;
+
+        return $this;
+    }
+
+    public function hasAccessToApp(Application $app): bool
+    {
+        return $this->user->isAdmin();
+    }
+
+    public function getAccessCode(): ?string
+    {
+        return $this->accessCode;
+    }
+
+    public function setAccessCode(string $accessCode): self
+    {
+        $this->accessCode = $accessCode;
+
+        return $this;
+    }
+
+    public function getAccessCodeGeneratedAt(): ?\DateTime
+    {
+        return $this->accessCodeGeneratedAt;
+    }
+
+    public function setAccessCodeGeneratedAt(\DateTime $accessCodeGeneratedAt): self
+    {
+        $this->accessCodeGeneratedAt = $accessCodeGeneratedAt;
 
         return $this;
     }

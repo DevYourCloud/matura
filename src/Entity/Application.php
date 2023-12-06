@@ -4,48 +4,34 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- *
- * @ORM\Table(name="application")
- *
- * @ORM\HasLifecycleCallbacks()
- */
+
+#[ORM\Table(name: 'application')]
+#[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
 class Application
 {
     use TimeableTrait;
     use ActivableTrait;
 
-    /**
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(type="integer")
-     */
+    
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     protected ?int $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected ?string $name;
 
-    /**
-     * @ORM\Column(type="string", nullable=false)
-     */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected ?string $alias;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     protected ?int $port;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Server", inversedBy="apps")
-     */
+    #[ORM\ManyToOne(targetEntity: 'Server', inversedBy: 'apps')]
     protected ?Server $server = null;
 
-    /** @ORM\OneToOne(targetEntity="Host", mappedBy="app", cascade={"persist", "remove"}) */
+    #[ORM\OneToOne(targetEntity: 'Host', mappedBy: 'app', cascade: ['persist', 'remove'])]
     protected ?Host $host = null;
 
     public function __toString(): string
@@ -97,7 +83,7 @@ class Application
     public function setServer(Server $server): self
     {
         $this->server = $server;
-        $this->createHost($server->getHost()->getDomain());
+        $this->createHost();
 
         return $this;
     }

@@ -15,8 +15,7 @@ class EncryptionService
         private string $secretKey,
         private string $trustedDeviceVersion,
         private string $tokenLifetime,
-    ) {
-    }
+    ) {}
 
     public function createConnectedDeviceHash(ConnectedDevice $connectedDevice): string
     {
@@ -32,7 +31,7 @@ class EncryptionService
 
     public function createTrustedDeviceToken(ConnectedDevice $connectedDevice): string
     {
-        if (empty($connectedDevice->getHash())) {
+        if (null === $connectedDevice->getHash() || '' === $connectedDevice->getHash() || '0' === $connectedDevice->getHash()) {
             throw new \Exception(sprintf('Empty Hash for device on server %s', $connectedDevice->getServer()->getHost()->getDomain()));
         }
 
@@ -82,6 +81,16 @@ class EncryptionService
         }
 
         return $decodedTokenValues[0];
+    }
+
+    public function createAccessCode(): string
+    {
+        $code = '';
+        for ($i = 0; $i < 5; ++$i) {
+            $code .= rand(0, 9);
+        }
+
+        return $code;
     }
 
     public function getTokenExpirationDate(): \DateTime

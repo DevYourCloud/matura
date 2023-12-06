@@ -8,16 +8,16 @@
     <article class="grid login">
         <div>
             <hgroup>
-                <h1>Sign in</h1>
-                <h2>To access to your dashboard</h2>
+                <h1>{{ 'app.front.login.sign_in'|trans }}</h1>
+                <h2>{{ 'app.front.login.subtitle'|trans }}</h2>
             </hgroup>
             <form action="{{ path('app_login') }}" method="post">
-                <input type="text" name="_username" placeholder="Login" aria-label="Login" value="{{ last_username }}" required>
-                <input type="password" name="_password" placeholder="Password" aria-label="Password" autocomplete="current-password" required>
+                <input type="text" name="_username" placeholder="{{ 'app.front.login.lgin_placeholder'|trans }}" aria-label="Login" value="{{ last_username }}" required>
+                <input type="password" name="_password" placeholder="{{ 'app.front.login.password_placeholder'|trans }}" aria-label="Password" autocomplete="current-password" required>
                 <fieldset>
                     <label for="remember">
                         <input type="checkbox" role="switch" id="remember" name="_remember_me">
-                        Remember me
+                        {{ 'app.front.login.remember_me'|trans }}
                     </label>
 
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
@@ -25,7 +25,7 @@
                 {% if error %}
                     <small class="error text-center">{{ error.messageKey|trans(error.messageData, 'security') }}</small>
                 {% endif %}
-                <button type="submit" class="contrast">Login</button>
+                <button type="submit" class="contrast">{{ 'app.front.login.submit'|trans }}</button>
             </form>
         </div>
         <div></div>
