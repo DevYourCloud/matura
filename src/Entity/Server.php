@@ -6,7 +6,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-
 #[ORM\Table(name: 'server')]
 #[ORM\Entity(repositoryClass: 'App\Repository\ServerRepository')]
 #[ORM\HasLifecycleCallbacks]
@@ -15,7 +14,6 @@ class Server
     use TimeableTrait;
     use ActivableTrait;
 
-    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

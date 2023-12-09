@@ -15,7 +15,6 @@ class TrustedDeviceCookieEventListener
     public function __construct(
         private AppContext $appContext,
         private EncryptionService $encryptionService,
-        private ConnectedDeviceAuthenticator $connectedDeviceAuthenticator,
         private string $trustedDeviceCookieName,
     ) {}
 

@@ -1,12 +1,14 @@
 app:
   admin:
     host_server.example: "The application slug (ex. myapp for a myapp.server.tld)"
+    dashboard:
+      welcome: Welcome, %user%
 
   front:
-    login: 
+    login:
       title: Login
       subtitle: To access to your dashboard
-      sign_in: Sign in 
+      sign_in: Sign in
       login_placeholder: email
       password_placeholder: password
       remember_me: Remember me
@@ -23,5 +25,3 @@ app:
       activate_pairing: If you want to allow this device, put your server in pairing mode and retry.
       enter_code: Enter the following code to whitelist your device
       submit: Log In to Matura
-
-  

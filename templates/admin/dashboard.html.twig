@@ -1,5 +1,11 @@
 {% extends '@EasyAdmin/layout.html.twig' %}
 
 {% block main %}
-    This is some dope dashboard
+    <h1>{{ "admin.dashboard.welcome"|trans }}</h1>
+    <div>
+        <p>{{ "admin.dashboard.validate"|trans }}</p>
+        <div class="form">
+            {{ form(form) }}
+        </div>
+    </div>
 {% endblock %}

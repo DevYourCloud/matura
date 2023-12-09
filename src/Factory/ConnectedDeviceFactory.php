@@ -19,7 +19,7 @@ class ConnectedDeviceFactory
     {
         $connectedDevice = new ConnectedDevice();
         $connectedDevice
-            ->setActive(true)
+            ->setActive(false)
             ->setServer($server)
             ->setIp($request->getForwardedIp())
             ->setUserAgent($request->getUserAgent())
@@ -33,9 +33,6 @@ class ConnectedDeviceFactory
         $this->em->persist($connectedDevice);
 
         $connectedDevice->setLastAccessed(new \DateTime('now'));
-
-        // Disable pairing mode after new device was added
-        // $server->setPairing(false);
 
         $this->em->flush();
 

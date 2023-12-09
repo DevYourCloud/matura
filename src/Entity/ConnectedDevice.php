@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-
 #[ORM\Table(name: 'connected_device')]
 #[ORM\Entity(repositoryClass: 'App\Repository\ConnectedDeviceRepository')]
 #[ORM\HasLifecycleCallbacks]
@@ -13,7 +12,6 @@ class ConnectedDevice
     use TimeableTrait;
     use ActivableTrait;
 
-    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -125,7 +123,7 @@ class ConnectedDevice
         return $this->accessCode;
     }
 
-    public function setAccessCode(string $accessCode): self
+    public function setAccessCode(?string $accessCode): self
     {
         $this->accessCode = $accessCode;
 

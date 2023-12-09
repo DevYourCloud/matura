@@ -27,4 +27,18 @@ class ConnectedDeviceManager
 
         return $this->connectedDeviceRepository->findOneBy(['hash' => $decoded]);
     }
+
+    public function validateAccessCode(string $accessCode): bool
+    {
+        $connectedDevice = $this->connectedDeviceRepository->findByAccessCode($accessCode);
+
+        if (null !== $connectedDevice) {
+            $connectedDevice->setAccessCode(null);
+            $connectedDevice->setActive(true);
+
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -23,4 +23,13 @@ class ConnectedDeviceRepository extends ServiceEntityRepository
             ->setParameter(':user', $user)
         ;
     }
+
+    public function findByAccessCode(string $accessCode): ?ConnectedDevice
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.accessCode = :accessCode')
+            ->setParameter(':accessCode', $accessCode)
+            ->getQuery()->getOneOrNullResult()
+        ;
+    }
 }

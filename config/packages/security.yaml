@@ -31,7 +31,6 @@ security:
       stateless: true
       custom_authenticators:
         - App\Security\TrustedDeviceAuthenticator
-        - App\Security\ForwardedAuthAuthenticator
 
     main:
       lazy: true

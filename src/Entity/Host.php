@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-
 #[ORM\Table(name: 'host')]
 #[ORM\Entity(repositoryClass: 'App\Repository\HostRepository')]
 #[ORM\HasLifecycleCallbacks]
@@ -12,7 +11,6 @@ class Host
 {
     use TimeableTrait;
 
-    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -21,15 +19,13 @@ class Host
     #[ORM\Column(type: 'string', unique: true)]
     private ?string $domain;
 
-    #[ORM\ManyToOne(targetEntity: 'Server', inversedBy: 'host')]
+    #[ORM\OneToOne(targetEntity: 'Server', inversedBy: 'host')]
     private ?Server $server = null;
 
-    #[ORM\ManyToOne(targetEntity: 'Application', inversedBy: 'host')]
+    #[ORM\OneToOne(targetEntity: 'Application', inversedBy: 'host')]
     private ?Application $app = null;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function __toString()
     {

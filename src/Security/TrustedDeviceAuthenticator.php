@@ -3,11 +3,11 @@
 namespace App\Security;
 
 use App\Context\AppContext;
+use App\Exception\DecodingTokenFailed;
 use App\Factory\ConnectedDeviceFactory;
 use App\Model\ForwardedRequest;
 use App\Service\ConnectedDeviceManager;
 use App\Voter\AccessVoter;
-use App\Exception\DecodingTokenFailed;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,25 +57,14 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         }
 
         if (!$request->cookies->has($this->trustedDeviceCookieName)) {
-            if ($this->appContext->getServer()->isPairing()) {
-                $this->appContext->setCreateTrustedCookie(true);
+            $this->appContext->setCreateTrustedCookie(true);
 
-                $this->logger->info(sprintf(
-                    '[DEVICE AUTH] Pairing active, creating a new device for request %s - %s',
-                    $forwardedRequest->getForwardedIp(),
-                    $forwardedRequest->getUserAgent()
-                ));
-
-                // @todo nick Persist the new device with CQRS
-                $connectedDevice = $this->connectedDeviceFactory->build($forwardedRequest, $this->appContext->getServer());
-
-                throw new CustomUserMessageAuthenticationException(
-                    '[COOKIE AUTH] No trusted cookie, setting up for creation'
-                );
-            }
+            // @todo nick Persist the new device with CQRS
+            $connectedDevice = $this->connectedDeviceFactory->build($forwardedRequest, $this->appContext->getServer());
+            $this->appContext->setConnectedDevice($connectedDevice);
 
             throw new CustomUserMessageAuthenticationException(
-                '[COOKIE AUTH] Server not in pairing mode, no trusted device creation'
+                '[COOKIE AUTH] No trusted cookie, setting up for creation'
             );
         }
 
