@@ -72,7 +72,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         $connectedDevice = null;
 
         try {
-            $this->connectedDeviceManager->decodeAndFindConnectedDevice($token);
+            $connectedDevice = $this->connectedDeviceManager->decodeAndFindConnectedDevice($token);
         } catch (DecodingTokenFailed $e) {
             throw new CustomUserMessageAuthenticationException($e->getMessage());
         }

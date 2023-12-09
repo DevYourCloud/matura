@@ -22,9 +22,7 @@ class AppContext
 
     private bool $createTrustedCookie = false;
 
-    public function __construct(private HostRepository $hostRepository)
-    {
-    }
+    public function __construct(private HostRepository $hostRepository) {}
 
     public function initializeFromRequest(ForwardedRequest $forwardedRequest): void
     {

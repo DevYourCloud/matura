@@ -22,6 +22,6 @@ app:
         first_letter: A
         rest: ccess
       help_text: Your device is not allowed to access this page.
-      activate_pairing: If you want to allow this device, put your server in pairing mode and retry.
+      app_access: Are you sure you can access this app ?
       enter_code: Enter the following code to whitelist your device
       submit: Log In to Matura

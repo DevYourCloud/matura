@@ -14,7 +14,6 @@ class ExternalAuthController extends AbstractController
     {
         return new Response(
             $this->renderView('security/unauthorized_access.html.twig', [
-                'isPairing' => (bool) $appContext->getServer()?->isPairing(),
                 'device' => $appContext->getConnectedDevice(),
                 'appHost' => $appHost,
             ]),

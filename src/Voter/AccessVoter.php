@@ -27,6 +27,12 @@ class AccessVoter extends Voter
 
         $connectedDevice = $subject->getConnectedDevice();
 
+        // @todo nick How to detect app dashboard?
+        $app = $subject->getApp();
+        if (null === $app) {
+            return true;
+        }
+
         return $connectedDevice->hasAccessToApp($subject->getApp());
     }
 }
