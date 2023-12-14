@@ -4,7 +4,6 @@ namespace App\Form\Admin;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 class AccessCodeFormType extends AbstractType
@@ -15,7 +14,6 @@ class AccessCodeFormType extends AbstractType
     {
         $builder
             ->add(self::FIELD_NAME, IntegerType::class)
-            ->add('validate', SubmitType::class)
         ;
     }
 }

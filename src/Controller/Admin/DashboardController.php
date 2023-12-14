@@ -7,6 +7,7 @@ use App\Entity\ConnectedDevice;
 use App\Entity\Server;
 use App\Entity\User;
 use App\Form\Admin\AccessCodeFormType;
+use App\Repository\ConnectedDeviceRepository;
 use App\Service\ConnectedDeviceManager;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -21,7 +22,8 @@ class DashboardController extends AbstractDashboardController
     public function __construct(
         private EntityManagerInterface $em,
         private RequestStack $requestStack,
-        private ConnectedDeviceManager $connectedDeviceManager
+        private ConnectedDeviceManager $connectedDeviceManager,
+        private ConnectedDeviceRepository $connectedDeviceRepository
     ) {}
 
     #[Route(path: '/admin', name: 'admin_dashboard')]
@@ -42,8 +44,12 @@ class DashboardController extends AbstractDashboardController
             }
         }
 
+        $lastActiveDevices = $this->connectedDeviceRepository->findLastActiveDevices();
+
         return $this->render('admin/dashboard.html.twig', [
             'form' => $form,
+            'user' => $this->getUser(),
+            'lastActiveDevices' => $lastActiveDevices
         ]);
     }
 

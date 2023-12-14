@@ -32,4 +32,14 @@ class ConnectedDeviceRepository extends ServiceEntityRepository
             ->getQuery()->getOneOrNullResult()
         ;
     }
+
+    public function findLastActiveDevices(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.lastAccessed is not NULL')
+            ->orderBy('c.lastAccessed', 'DESC')
+            ->setMaxResults(10)
+            ->getQuery()->getResult()
+        ;
+    }
 }

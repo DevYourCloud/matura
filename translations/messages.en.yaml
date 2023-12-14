@@ -2,7 +2,16 @@ app:
   admin:
     host_server.example: "The application slug (ex. myapp for a myapp.server.tld)"
     dashboard:
-      welcome: Welcome, %user%
+      welcome: Welcome, :user
+    access_code:
+      add_device: Add a new device
+      add_device_with_code: Enter the code of the new device here
+      validate: Accept
+    active_devices:
+      server: Server name
+      ip: IP
+      user_agent: User Agent
+      access_date: Last access date
 
   front:
     login:

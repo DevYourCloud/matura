@@ -1,11 +1,17 @@
 {% extends '@EasyAdmin/layout.html.twig' %}
 
 {% block main %}
-    <h1>{{ "admin.dashboard.welcome"|trans }}</h1>
+    <h1>{{ "app.admin.dashboard.welcome"|trans({":user": user.email}) }}</h1>
+    <section class="quick-access pt-4">
     <div>
-        <p>{{ "admin.dashboard.validate"|trans }}</p>
-        <div class="form">
-            {{ form(form) }}
+        <div class="w-25">
+            {% include 'admin/dashboard/access_code_template.html.twig' with {"form": form} only %}
         </div>
     </div>
+    </section>
+    <section class="last-devices pt-4">
+        <div>
+            {% include 'admin/dashboard/last_active_devices.html.twig' with {"lastActiveDevices": lastActiveDevices } only %}
+        </div>
+    </section>
 {% endblock %}
