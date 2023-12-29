@@ -6,20 +6,16 @@ use App\Entity\ConnectedDevice;
 use App\Entity\Host;
 use App\Entity\Server;
 use App\Service\EncryptionService;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use App\Tests\Builder\ServiceBuilder;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @internal
- *
- * @covers \EncryptionService
- */
-class EncryptionServiceTest extends KernelTestCase
+class EncryptionServiceTest extends TestCase
 {
     private EncryptionService $encryptionService;
 
     public function setUp(): void
     {
-        $this->encryptionService = static::getContainer()->get(EncryptionService::class);
+        $this->encryptionService = ServiceBuilder::getEncryptionService();
     }
 
     public function testDeviceHash(): void

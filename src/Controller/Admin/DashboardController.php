@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DashboardController extends AbstractDashboardController
 {
@@ -23,8 +24,10 @@ class DashboardController extends AbstractDashboardController
         private EntityManagerInterface $em,
         private RequestStack $requestStack,
         private ConnectedDeviceManager $connectedDeviceManager,
-        private ConnectedDeviceRepository $connectedDeviceRepository
-    ) {}
+        private ConnectedDeviceRepository $connectedDeviceRepository,
+        private TranslatorInterface $translator
+    ) {
+    }
 
     #[Route(path: '/admin', name: 'admin_dashboard')]
     public function index(): Response
@@ -34,22 +37,29 @@ class DashboardController extends AbstractDashboardController
         $form = $this->createForm(AccessCodeFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $accessCode = (string) $form->get(AccessCodeFormType::FIELD_NAME)->getData();
+            $accessCode = (string) $form->get(AccessCodeFormType::FIELD_CODE)->getData();
+            $deviceName = (string) $form->get(AccessCodeFormType::FIELD_NAME)->getData();
 
-            if ($this->connectedDeviceManager->validateAccessCode($accessCode)) {
+            $device = $this->connectedDeviceManager->validateAccessCode($accessCode);
+
+            if ($device instanceof ConnectedDevice) {
+                if ('' !== $deviceName && null !== $deviceName) {
+                    $device->setName($deviceName);
+                }
+
                 $this->em->flush();
                 $this->addFlash('success', 'Device validated');
             } else {
-                $this->addFlash('error', 'Device not found');
+                $this->addFlash('warning', 'Unable to Device not found');
             }
         }
 
-        $lastActiveDevices = $this->connectedDeviceRepository->findLastActiveDevices();
+        $lastActiveDevices = $this->connectedDeviceRepository->getLastActiveDevices();
 
         return $this->render('admin/dashboard.html.twig', [
             'form' => $form,
             'user' => $this->getUser(),
-            'lastActiveDevices' => $lastActiveDevices
+            'lastActiveDevices' => $lastActiveDevices,
         ]);
     }
 

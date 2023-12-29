@@ -3,70 +3,83 @@
 namespace App\Tests\EventListener;
 
 use App\Context\AppContext;
-use App\DataFixtures\MainFixtures;
+use App\Entity\ConnectedDevice;
 use App\EventListener\TrustedDeviceCookieEventListener;
 use App\Model\ForwardedRequest;
-use App\Security\ConnectedDeviceAuthenticator;
 use App\Service\EncryptionService;
-use App\Tests\FixtureAwareTestCase;
+use App\Tests\Builder\ApplicationEntityBuilder;
+use App\Tests\Builder\ConnectedDeviceEntityBuilder;
+use App\Tests\Builder\HostEntityBuilder;
+use App\Tests\Builder\ServerEntityBuilder;
+use App\Tests\Builder\ServiceBuilder;
+use App\Tests\Mock\HostRepositoryMock;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
-/**
- * @internal
- *
- * @coversNothing
- */
-class TrustedDeviceCookieEventListenerTest extends FixtureAwareTestCase
+class TrustedDeviceCookieEventListenerTest extends TestCase
 {
-    private int $tokenLifetime = 0;
-
     private EncryptionService $encryptionService;
-    private ConnectedDeviceAuthenticator $trustedDeviceAuthenticator;
 
-    private string $trustedCookieName;
+    private TrustedDeviceCookieEventListener $trustedDeviceCookieListener;
+
+    private HostRepositoryMock $hostRepository;
+
+    private AppContext $appContext;
 
     public function setUp(): void
     {
-        parent::setUp();
+        $this->hostRepository = new HostRepositoryMock();
 
-        $this->addFixture(new MainFixtures());
-        $this->executeFixtures();
+        $this->encryptionService = ServiceBuilder::getEncryptionService('30');
+        $this->appContext = ServiceBuilder::getAppContext($this->hostRepository);
 
-        $this->tokenLifetime = $this->getContainer()->getParameter('token_lifetime');
-
-        $this->encryptionService = $this->getContainer()->get(EncryptionService::class);
-        $this->trustedDeviceAuthenticator = $this->getContainer()->get(ConnectedDeviceAuthenticator::class);
-        $this->trustedCookieName = static::getContainer()->getParameter('trusted_device_cookie_name');
+        $this->trustedDeviceCookieListener = ServiceBuilder::getTrustedDeviceCookieListener($this->appContext, $this->encryptionService);
     }
 
-    /** @group nick */
     public function testCookieAddedOnRequested(): void
     {
-        $host = 'authorized.devyour.cloud';
+        $domain = 'authorized.devyour.cloud';
+
+        $app = ApplicationEntityBuilder::create()->build();
+        $server = ServerEntityBuilder::create()->withPairing(true)->build();
+        $host = HostEntityBuilder::create()
+            ->withDomain($domain)
+            ->withApp($app)
+            ->withServer($server)
+            ->build()
+        ;
+        $connectedDevice = ConnectedDeviceEntityBuilder::create()
+            ->withServer($server)
+            ->withHash('MY_HASH')
+            ->build()
+        ;
+
+        $this->hostRepository->setHost($host);
 
         $request = new Request([], [], [], [], [], []);
         $request->headers->add([
             'X-Forwarded-Method' => 'GET',
             'X-Forwarded-Proto' => 'https',
-            'X-Forwarded-Host' => $host,
+            'X-Forwarded-Host' => $domain,
             'X-Forwarded-Uri' => '/',
             'X-Forwarded-For' => '100.111.222.333',
             'User-Agent' => 'Firefox',
         ]);
-        $appContext = $this->createAppContext($request, true);
 
-        $responseEvent = new ResponseEvent(self::$kernel, $request, 0, new Response());
-        $eventListener = new TrustedDeviceCookieEventListener(
-            $appContext,
-            $this->encryptionService,
-            $this->trustedDeviceAuthenticator,
-            $this->trustedCookieName
+        $this->prepareAppContext($request, true, $connectedDevice);
+
+        $responseEvent = new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $this->createMock(Request::class),
+            1,
+            new Response()
         );
 
-        $eventListener->__invoke($responseEvent);
+        $this->trustedDeviceCookieListener->__invoke($responseEvent);
 
         $response = $responseEvent->getResponse();
 
@@ -74,14 +87,14 @@ class TrustedDeviceCookieEventListenerTest extends FixtureAwareTestCase
         $cookie = $response->headers->getCookies()[0];
 
         self::assertInstanceOf(Cookie::class, $cookie);
-        self::assertEquals($host, $cookie->getDomain());
+        self::assertEquals($domain, $cookie->getDomain());
         self::assertTrue($cookie->isSecure());
 
         $cookieTime = new \DateTime();
         $cookieTime->setTimestamp($cookie->getExpiresTime());
 
         $expiryTime = new \DateTime();
-        $expiryTime->add(new \DateInterval('P'.$this->tokenLifetime.'D'));
+        $expiryTime->add(new \DateInterval('P30D'));
 
         self::assertEquals($expiryTime->format('Y-m-d'), $cookieTime->format('Y-m-d'));
 
@@ -92,40 +105,96 @@ class TrustedDeviceCookieEventListenerTest extends FixtureAwareTestCase
 
     public function testNoCookieOnUnauthorizedAccess(): void
     {
-        $host = 'unauthorized.devyour.cloud';
+        $domain = 'unauthorized.devyour.cloud';
+
+        $app = ApplicationEntityBuilder::create()->build();
+        $server = ServerEntityBuilder::create()->withPairing(true)->build();
+        $host = HostEntityBuilder::create()
+            ->withDomain($domain)
+            ->withApp($app)
+            ->withServer($server)
+            ->build()
+        ;
+        $connectedDevice = ConnectedDeviceEntityBuilder::create()
+            ->withServer($server)
+            ->withHash('MY_HASH')
+            ->build()
+        ;
+
+        $this->hostRepository->setHost($host);
 
         $request = new Request([], [], [], [], [], []);
         $request->headers->add([
             'X-Forwarded-Method' => 'GET',
             'X-Forwarded-Proto' => 'https',
-            'X-Forwarded-Host' => $host,
+            'X-Forwarded-Host' => $domain,
             'X-Forwarded-Uri' => '/',
             'X-Forwarded-For' => '100.111.222.333',
             'User-Agent' => 'Firefox',
         ]);
-        $appContext = $this->createAppContext($request, false);
+        $this->prepareAppContext($request, false, $connectedDevice);
 
-        $responseEvent = new ResponseEvent(self::$kernel, $request, 0, new Response());
-        $eventListener = new TrustedDeviceCookieEventListener(
-            $appContext,
-            $this->encryptionService,
-            $this->trustedDeviceAuthenticator,
-            $this->trustedCookieName
+        $responseEvent = new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $this->createMock(Request::class),
+            1,
+            new Response()
         );
 
-        $eventListener->__invoke($responseEvent);
+        $this->trustedDeviceCookieListener->__invoke($responseEvent);
 
         $response = $responseEvent->getResponse();
         self::assertCount(0, $response->headers->getCookies());
     }
 
-    private function createAppContext(Request $request, bool $createCookie): AppContext
+    public function testNoCookieOnNotPairingServer(): void
     {
-        /** @var AppContext $appContext */
-        $appContext = $this->getContainer()->get(AppContext::class);
-        $appContext->initializeFromRequest(new ForwardedRequest($request));
-        $appContext->setCreateTrustedCookie($createCookie);
+        $domain = 'unauthorized.devyour.cloud';
 
-        return $appContext;
+        $app = ApplicationEntityBuilder::create()->build();
+        $server = ServerEntityBuilder::create()->withPairing(false)->build();
+        $host = HostEntityBuilder::create()
+            ->withDomain($domain)
+            ->withApp($app)
+            ->withServer($server)
+            ->build()
+        ;
+        $connectedDevice = ConnectedDeviceEntityBuilder::create()
+            ->withServer($server)
+            ->withHash('MY_HASH')
+            ->build()
+        ;
+
+        $this->hostRepository->setHost($host);
+
+        $request = new Request([], [], [], [], [], []);
+        $request->headers->add([
+            'X-Forwarded-Method' => 'GET',
+            'X-Forwarded-Proto' => 'https',
+            'X-Forwarded-Host' => $domain,
+            'X-Forwarded-Uri' => '/',
+            'X-Forwarded-For' => '100.111.222.333',
+            'User-Agent' => 'Firefox',
+        ]);
+        $this->prepareAppContext($request, false, $connectedDevice);
+
+        $responseEvent = new ResponseEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $this->createMock(Request::class),
+            1,
+            new Response()
+        );
+
+        $this->trustedDeviceCookieListener->__invoke($responseEvent);
+
+        $response = $responseEvent->getResponse();
+        self::assertCount(0, $response->headers->getCookies());
+    }
+
+    private function prepareAppContext(Request $request, bool $createCookie, ConnectedDevice $connectedDevice): void
+    {
+        $this->appContext->initializeFromRequest(new ForwardedRequest($request));
+        $this->appContext->setCreateTrustedCookie($createCookie);
+        $this->appContext->setConnectedDevice($connectedDevice);
     }
 }

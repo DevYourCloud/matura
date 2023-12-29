@@ -13,7 +13,8 @@ class ConnectedDeviceFactory
     public function __construct(
         private EncryptionService $encryptionService,
         private EntityManagerInterface $em
-    ) {}
+    ) {
+    }
 
     public function build(ForwardedRequest $request, Server $server): ConnectedDevice
     {

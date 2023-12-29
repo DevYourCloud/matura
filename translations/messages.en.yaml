@@ -3,12 +3,15 @@ app:
     host_server.example: "The application slug (ex. myapp for a myapp.server.tld)"
     dashboard:
       welcome: Welcome, :user
+      last_devices_access: Last active devices
     access_code:
       add_device: Add a new device
-      add_device_with_code: Enter the code of the new device here
+      add_device_with_code: "Enter the code of the new device here:"
+      how_to_get_code: The first time you access an app, you will be prompted a authentication code
       validate: Accept
     active_devices:
       server: Server name
+      user: User
       ip: IP
       user_agent: User Agent
       access_date: Last access date

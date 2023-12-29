@@ -3,6 +3,7 @@
 namespace App\Voter;
 
 use App\Context\AppContext;
+use App\Entity\ConnectedDevice;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -10,9 +11,13 @@ class AccessVoter extends Voter
 {
     public const ACCESS_ATTR = 'access';
 
+    public function __construct(private AppContext $appContext)
+    {
+    }
+
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return self::ACCESS_ATTR === $attribute && $subject instanceof AppContext;
+        return self::ACCESS_ATTR === $attribute && $subject instanceof ConnectedDevice;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -21,18 +26,20 @@ class AccessVoter extends Voter
             return false;
         }
 
-        if (!$subject instanceof AppContext) {
-            throw new \LogicException('Needing a AppContext object to vote');
+        if (!$subject instanceof ConnectedDevice) {
+            throw new \LogicException('Needing a ConnectedDevice object to vote');
         }
 
-        $connectedDevice = $subject->getConnectedDevice();
+        if (!$subject->isActive()) {
+            return false;
+        }
 
         // @todo nick How to detect app dashboard?
-        $app = $subject->getApp();
+        $app = $this->appContext->getApp();
         if (null === $app) {
             return true;
         }
 
-        return $connectedDevice->hasAccessToApp($subject->getApp());
+        return $subject->hasAccessToApp($this->appContext->getApp());
     }
 }

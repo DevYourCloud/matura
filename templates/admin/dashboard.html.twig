@@ -4,7 +4,7 @@
     <h1>{{ "app.admin.dashboard.welcome"|trans({":user": user.email}) }}</h1>
     <section class="quick-access pt-4">
     <div>
-        <div class="w-25">
+        <div class="w-50">
             {% include 'admin/dashboard/access_code_template.html.twig' with {"form": form} only %}
         </div>
     </div>

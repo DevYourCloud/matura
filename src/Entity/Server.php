@@ -17,19 +17,19 @@ class Server
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    protected ?int $id;
+    protected ?int $id = null;
 
     #[ORM\Column(type: 'string')]
-    protected ?string $name;
+    protected ?string $name = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
-    protected ?string $description;
+    protected ?string $description = null;
 
     #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'servers')]
-    protected ?User $user;
+    protected ?User $user = null;
 
     #[ORM\OneToOne(targetEntity: 'Host', mappedBy: 'server', cascade: ['persist', 'remove'])]
-    protected Host $host;
+    protected ?Host $host = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $pairing = false;

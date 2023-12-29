@@ -15,7 +15,8 @@ class EncryptionService
         private string $secretKey,
         private string $trustedDeviceVersion,
         private string $tokenLifetime,
-    ) {}
+    ) {
+    }
 
     public function createConnectedDeviceHash(ConnectedDevice $connectedDevice): string
     {

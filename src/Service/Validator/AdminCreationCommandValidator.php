@@ -8,7 +8,7 @@ class AdminCreationCommandValidator
 {
     public function validatePassword(?string $plainPassword): string
     {
-        if ($plainPassword === null || $plainPassword === '' || $plainPassword === '0') {
+        if (null === $plainPassword || '' === $plainPassword || '0' === $plainPassword) {
             throw new \InvalidArgumentException('The password can not be empty.');
         }
 
@@ -21,7 +21,7 @@ class AdminCreationCommandValidator
 
     public function validateEmail(?string $email): string
     {
-        if ($email === null || $email === '' || $email === '0') {
+        if (null === $email || '' === $email || '0' === $email) {
             throw new \InvalidArgumentException('The email can not be empty.');
         }
 
@@ -34,7 +34,7 @@ class AdminCreationCommandValidator
 
     public function validateUsername(?string $username): string
     {
-        if ($username === null || $username === '' || $username === '0') {
+        if (null === $username || '' === $username || '0' === $username) {
             throw new \InvalidArgumentException('The username can not be empty.');
         }
 

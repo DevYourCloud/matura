@@ -6,7 +6,7 @@ use App\Entity\Host;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class HostRepository extends ServiceEntityRepository
+class HostRepository extends ServiceEntityRepository implements HostRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

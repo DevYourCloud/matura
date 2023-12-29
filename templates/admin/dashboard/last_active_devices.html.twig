@@ -6,9 +6,10 @@
                 <tr>
                 <th scope="col">#</th>
                 <th scope="col">{{ "app.admin.active_devices.server"|trans }}</th>
+                <th scope="col">{{ "app.admin.active_devices.user"|trans }}</th>
+                <th scope="col">{{ "app.admin.active_devices.access_date"|trans }}</th>
                 <th scope="col">{{ "app.admin.active_devices.ip"|trans }}</th>
                 <th scope="col">{{ "app.admin.active_devices.user_agent"|trans }}</th>
-                <th scope="col">{{ "app.admin.active_devices.access_date"|trans }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -16,9 +17,11 @@
                 <tr>
                 <th scope="row">{{ key + 1 }}</th>
                 <td>{{ device.server.name }}</td>
+                <td>{{ device.server.user.email }}</td>
+                <td>{{ device.lastAccessed|date('d/m/y h:i:s') }}</td>
                 <td>{{ device.ip }}</td>
                 <td>{{ device.userAgent }}</td>
-                <td>{{ device.lastAccessed|date('d/m/y h:i:s') }}</td>
+                
                 </tr>
             {% endfor %}
             </tbody>

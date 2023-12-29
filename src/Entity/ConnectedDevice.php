@@ -32,6 +32,9 @@ class ConnectedDevice
     #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $accessCode = null;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    protected ?string $name = null;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?\DateTime $accessCodeGeneratedAt = null;
 
@@ -138,6 +141,18 @@ class ConnectedDevice
     public function setAccessCodeGeneratedAt(\DateTime $accessCodeGeneratedAt): self
     {
         $this->accessCodeGeneratedAt = $accessCodeGeneratedAt;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
 
         return $this;
     }

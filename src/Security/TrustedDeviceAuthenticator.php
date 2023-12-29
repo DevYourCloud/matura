@@ -30,7 +30,8 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         private ConnectedDeviceFactory $connectedDeviceFactory,
         private AppContext $appContext,
         private LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function supports(Request $request): ?bool
     {
@@ -49,12 +50,10 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         try {
             $this->appContext->initializeFromRequest($forwardedRequest);
         } catch (\Exception $e) {
-            throw new CustomUserMessageAuthenticationException(sprintf(
-                '[COOKIE AUTH] Initialization failed : %s - %s',
-                $e->getMessage(),
-                $forwardedRequest->getForwardedHost()
-            ));
+            throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] Initialization failed : %s - %s', $e->getMessage(), $forwardedRequest->getForwardedHost()));
         }
+
+        $server = $this->appContext->getServer();
 
         if (!$request->cookies->has($this->trustedDeviceCookieName)) {
             $this->appContext->setCreateTrustedCookie(true);
@@ -62,10 +61,8 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
             // @todo nick Persist the new device with CQRS
             $connectedDevice = $this->connectedDeviceFactory->build($forwardedRequest, $this->appContext->getServer());
             $this->appContext->setConnectedDevice($connectedDevice);
-
-            throw new CustomUserMessageAuthenticationException(
-                '[COOKIE AUTH] No trusted cookie, setting up for creation'
-            );
+            
+            throw new CustomUserMessageAuthenticationException('[COOKIE AUTH] No trusted cookie, setting up for creation');
         }
 
         $token = \urldecode($request->cookies->get($this->trustedDeviceCookieName));
@@ -74,10 +71,14 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         try {
             $connectedDevice = $this->connectedDeviceManager->decodeAndFindConnectedDevice($token);
         } catch (DecodingTokenFailed $e) {
+            $this->appContext->setCreateTrustedCookie(true);
+
             throw new CustomUserMessageAuthenticationException($e->getMessage());
         }
 
         if (null === $connectedDevice) {
+            $this->appContext->setCreateTrustedCookie(true);
+
             throw new CustomUserMessageAuthenticationException('[COOKIE AUTH] No device found');
         }
 
@@ -85,7 +86,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
 
         $this->appContext->setConnectedDevice($connectedDevice);
 
-        if ($this->authorizationChecker->isGranted(AccessVoter::ACCESS_ATTR, $this->appContext)) {
+        if ($this->authorizationChecker->isGranted(AccessVoter::ACCESS_ATTR, $connectedDevice)) {
             return new SelfValidatingPassport(new UserBadge($server->getUser()->getUserIdentifier()));
         }
 

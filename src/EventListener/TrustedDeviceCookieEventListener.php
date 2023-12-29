@@ -3,8 +3,8 @@
 namespace App\EventListener;
 
 use App\Context\AppContext;
-use App\Security\ConnectedDeviceAuthenticator;
 use App\Service\EncryptionService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -15,16 +15,22 @@ class TrustedDeviceCookieEventListener
     public function __construct(
         private AppContext $appContext,
         private EncryptionService $encryptionService,
+        private LoggerInterface $logger,
         private string $trustedDeviceCookieName,
-    ) {}
+    ) {
+    }
 
     public function __invoke(ResponseEvent $responseEvent)
     {
-        if (!$this->appContext->hasValidForwardedAuthRequest()) {
+        if (!$this->appContext->createTrustedCookie()) {
             return;
         }
 
-        if (!$this->appContext->createTrustedCookie()) {
+        $server = $this->appContext->getServer();
+
+        if (!$server->isPairing()) {
+            $this->logger->info(sprintf('Paring not active on server %s', $server->getName()));
+
             return;
         }
 

@@ -25,7 +25,9 @@ class Host
     #[ORM\OneToOne(targetEntity: 'Application', inversedBy: 'host')]
     private ?Application $app = null;
 
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public function __toString()
     {
@@ -52,6 +54,10 @@ class Host
     public function setServer(Server $server): self
     {
         $this->server = $server;
+
+        if (null === $server->getHost()) {
+            $server->setHost($this);
+        }
 
         return $this;
     }

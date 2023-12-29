@@ -6,7 +6,7 @@ use App\Entity\Application;
 use App\Entity\ConnectedDevice;
 use App\Entity\Server;
 use App\Model\ForwardedRequest;
-use App\Repository\HostRepository;
+use App\Repository\HostRepositoryInterface;
 
 class AppContext
 {
@@ -22,24 +22,24 @@ class AppContext
 
     private bool $createTrustedCookie = false;
 
-    public function __construct(private HostRepository $hostRepository) {}
+    private bool $initialized = false;
+
+    public function __construct(private HostRepositoryInterface $hostRepository)
+    {
+    }
 
     public function initializeFromRequest(ForwardedRequest $forwardedRequest): void
     {
         $this->forwardedRequest = $forwardedRequest;
 
         if (!$forwardedRequest->isValid()) {
-            throw new \Exception(
-                sprintf('Forward request invalid: %s', $forwardedRequest)
-            );
+            throw new \Exception(sprintf('Forward request invalid: %s', $forwardedRequest));
         }
 
         $host = $this->hostRepository->findOneByDomain($forwardedRequest->getForwardedHost());
 
         if (null === $host) {
-            throw new \Exception(
-                sprintf('Host not found: %s', $forwardedRequest->getForwardedHost())
-            );
+            throw new \Exception(sprintf('Host not found: %s', $forwardedRequest->getForwardedHost()));
         }
 
         if (null !== $host->getServer()) {
@@ -50,14 +50,18 @@ class AppContext
         }
 
         if (null === $this->server) {
-            throw new \Exception(
-                sprintf('server inactive or not found: %s', $forwardedRequest->getForwardedHost())
-            );
+            throw new \Exception(sprintf('server inactive or not found: %s', $forwardedRequest->getForwardedHost()));
         }
+
+        $this->initialized = true;
     }
 
-    public function getServer(): ?Server
+    public function getServer(): Server
     {
+        if (!$this->initialized) {
+            throw new \Exception('AppContext not initialized, use initializeFromRequest');
+        }
+
         return $this->server;
     }
 
@@ -68,8 +72,12 @@ class AppContext
     //     return $this;
     // }
 
-    public function getApp(): ?Application
+    public function getApp(): Application
     {
+        if (!$this->initialized) {
+            throw new \Exception('AppContext not initialized, use initializeFromRequest');
+        }
+
         return $this->app;
     }
 
@@ -80,8 +88,12 @@ class AppContext
     //     return $this;
     // }
 
-    public function getForwardedRequest(): ?ForwardedRequest
+    public function getForwardedRequest(): ForwardedRequest
     {
+        if (!$this->initialized) {
+            throw new \Exception('AppContext not initialized, use initializeFromRequest');
+        }
+
         return $this->forwardedRequest;
     }
 
@@ -94,6 +106,10 @@ class AppContext
 
     public function getConnectedDevice(): ?ConnectedDevice
     {
+        if (!$this->initialized) {
+            throw new \Exception('AppContext not initialized, use initializeFromRequest');
+        }
+
         return $this->connectedDevice;
     }
 

@@ -2,4 +2,6 @@
 
 namespace App\Exception;
 
-class DecodingTokenFailed extends \Exception {}
+class DecodingTokenFailed extends \Exception
+{
+}

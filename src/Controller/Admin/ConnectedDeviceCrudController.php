@@ -19,7 +19,8 @@ class ConnectedDeviceCrudController extends AbstractCrudController
 {
     public function __construct(
         protected EncryptionService $encryptionService,
-    ) {}
+    ) {
+    }
 
     public static function getEntityFqcn(): string
     {
@@ -46,9 +47,6 @@ class ConnectedDeviceCrudController extends AbstractCrudController
         return [
             IdField::new('id'),
             AssociationField::new('server')
-                // ->setQueryBuilder(
-                //     fn (QueryBuilder $queryBuilder) => $this->connectedDeviceRepository->findByUserQuery($user)
-                // )
                 ->setFormTypeOption('query_builder', function (ORMEntityRepository $entityRepository) use ($user) {
                     return $entityRepository->createQueryBuilder('s')
                         ->andWhere('s.user = :user')

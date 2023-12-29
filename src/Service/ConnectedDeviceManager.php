@@ -4,16 +4,17 @@ namespace App\Service;
 
 use App\Entity\ConnectedDevice;
 use App\Exception\DecodingTokenFailed;
-use App\Repository\ConnectedDeviceRepository;
+use App\Repository\ConnectedDeviceRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
 class ConnectedDeviceManager
 {
     public function __construct(
         private EncryptionService $encryptionService,
-        private ConnectedDeviceRepository $connectedDeviceRepository,
+        private ConnectedDeviceRepositoryInterface $connectedDeviceRepository,
         private LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     public function decodeAndFindConnectedDevice(string $encodedToken): ?ConnectedDevice
     {
@@ -25,20 +26,20 @@ class ConnectedDeviceManager
 
         $this->logger->debug(sprintf('Looking for a device with token "%s"', $decoded));
 
-        return $this->connectedDeviceRepository->findOneBy(['hash' => $decoded]);
+        return $this->connectedDeviceRepository->getDeviceByHash($decoded);
     }
 
-    public function validateAccessCode(string $accessCode): bool
+    public function validateAccessCode(string $accessCode): ?ConnectedDevice
     {
-        $connectedDevice = $this->connectedDeviceRepository->findByAccessCode($accessCode);
+        $connectedDevice = $this->connectedDeviceRepository->getDeviceByAccessCode($accessCode);
 
         if (null !== $connectedDevice) {
             $connectedDevice->setAccessCode(null);
             $connectedDevice->setActive(true);
 
-            return true;
+            return $connectedDevice;
         }
 
-        return false;
+        return null;
     }
 }

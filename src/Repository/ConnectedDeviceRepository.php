@@ -3,28 +3,22 @@
 namespace App\Repository;
 
 use App\Entity\ConnectedDevice;
-use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
-class ConnectedDeviceRepository extends ServiceEntityRepository
+class ConnectedDeviceRepository extends ServiceEntityRepository implements ConnectedDeviceRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ConnectedDevice::class);
     }
 
-    public function findByUserQuery(User $user): QueryBuilder
+    public function getDeviceByHash(string $hash): ?ConnectedDevice
     {
-        return $this->createQueryBuilder('c')
-            ->innerJoin('c.server', 's')
-            ->andWhere('s.user = :user')
-            ->setParameter(':user', $user)
-        ;
+        return $this->findOneByHash(['hash' => $hash]);
     }
 
-    public function findByAccessCode(string $accessCode): ?ConnectedDevice
+    public function getDeviceByAccessCode(string $accessCode): ?ConnectedDevice
     {
         return $this->createQueryBuilder('c')
             ->where('c.accessCode = :accessCode')
@@ -33,7 +27,7 @@ class ConnectedDeviceRepository extends ServiceEntityRepository
         ;
     }
 
-    public function findLastActiveDevices(): array
+    public function getLastActiveDevices(): array
     {
         return $this->createQueryBuilder('c')
             ->where('c.lastAccessed is not NULL')

@@ -78,7 +78,7 @@ class AddAdminCommand extends Command
         if (null !== $username) {
             $this->io->text(' > <info>Full Name</info>: '.$username);
         } else {
-            $username = $this->io->ask('Full Name', null, function (?string $username) : string {
+            $username = $this->io->ask('Full Name', null, function (?string $username): string {
                 return $this->validator->validateUsername($username);
             });
             $input->setArgument('username', $username);
@@ -89,7 +89,7 @@ class AddAdminCommand extends Command
         if (null !== $email) {
             $this->io->text(' > <info>Email</info>: '.$email);
         } else {
-            $email = $this->io->ask('Email', null, function (?string $email) : string {
+            $email = $this->io->ask('Email', null, function (?string $email): string {
                 return $this->validator->validateEmail($email);
             });
             $input->setArgument('email', $email);
@@ -102,7 +102,7 @@ class AddAdminCommand extends Command
         } else {
             $password = $this->io->askHidden(
                 'Password - min 6 chars (your type will be hidden)',
-                function (?string $plainPassword) : string {
+                function (?string $plainPassword): string {
                     return $this->validator->validatePassword($plainPassword);
                 }
             );
