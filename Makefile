@@ -86,7 +86,7 @@ yarn-prod-assets:
 
 .PHONY: phpstan
 phpstan:
-	@$(COMPOSE) exec --user=$(user) $(WEB) vendor/bin/phpstan analyse -l 5 src
+	@$(COMPOSE) exec --user=$(user) $(WEB) vendor/bin/phpstan analyse src tests --memory-limit=1G
 
 .PHONY: phpunit
 phpunit:

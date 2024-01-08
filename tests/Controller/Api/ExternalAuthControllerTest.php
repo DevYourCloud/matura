@@ -2,21 +2,21 @@
 
 namespace App\Tests\Controller\Api;
 
+use App\DataFixtures\DeviceAuthorizedFixture;
+use App\DataFixtures\DeviceNotAuthorizedFixture;
 use App\Entity\ConnectedDevice;
-use App\Entity\Host;
-use App\Repository\HostRepository;
+use App\Entity\Server;
 use App\Repository\HostRepositoryInterface;
 use App\Service\EncryptionService;
-use App\Tests\Builder\ServiceBuilder;
-use App\Tests\Mock\HostRepositoryMock;
+use App\Tests\FixtureAwareWebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie as BrowserKitCookie;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExternalAuthControllerTest extends WebTestCase
+class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 {
     private HostRepositoryInterface $hostRepository;
+
     private EncryptionService $encryptionService;
 
     private string $trustedCookieName;
@@ -25,69 +25,54 @@ class ExternalAuthControllerTest extends WebTestCase
     {
         parent::setUp();
 
-        $this->hostRepository = new HostRepositoryMock();
-        $this->encryptionService = ServiceBuilder::getEncryptionService();
-        $this->trustedCookieName = '_trusted_device';
+        $container = self::getContainer();
+
+        $this->hostRepository = $container->get(HostRepositoryInterface::class);
+        $this->trustedCookieName = $container->getParameter('trusted_device_cookie_name');
+        $this->encryptionService = $container->get(EncryptionService::class);
     }
 
     public function testRequestAuthenticationFailedAction(): void
     {
-        self::markTestSkipped();
+        // Given
+        $fixture = new DeviceNotAuthorizedFixture();
+        $this->addFixture($fixture);
+        $this->executeFixtures();
 
-        $response = $this->request('nick.devyour.cloud', '/', '127.0.0.1');
+        /** @var Server $server */
+        $server = $fixture->getReference(DeviceNotAuthorizedFixture::SERVER_REFERENCE, Server::class);
 
+        // When
+        $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1');
+        $responseApp = $this->request($server->getHost()->getDomain(), '/exampleApp', '127.0.0.1');
+        $responseWrongToken = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1', 'WRONG TOKEN');
+
+        // Then
         self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
-
-        /** @var Host $host */
-        $host = $this->hostRepository->getByDomain(['domain' => 'nick.devyour.cloud']);
-        $server = $host->getServer();
-
-        self::assertNotNull($server);
-        self::assertEquals(0, $server->getConnectedDevices()->count());
-    }
-
-    public function testRequestAuthenticationFailedWithTokenAction(): void
-    {
-        self::markTestSkipped();
-
-        $response = $this->request('nick.devyour.cloud', '/', '127.0.0.1', 'WRONG TOKEN');
-
-        self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
-
-        $host = $this->hostRepository->findOneByDomain('nick.devyour.cloud');
-        $server = $host->getServer();
-        self::assertNotNull($server);
-        self::assertEquals(0, $server->getConnectedDevices()->count());
+        self::assertEquals(Response::HTTP_UNAUTHORIZED, $responseApp->getStatusCode());
+        self::assertEquals(Response::HTTP_UNAUTHORIZED, $responseWrongToken->getStatusCode());
     }
 
     public function testRequestAuthenticationSuccessAction(): void
     {
-        self::markTestSkipped();
-
         // Given
-        $host = $this->hostRepository->findOneByDomain('symfony-request.devyour.cloud');
-        $server = $host->getServer();
+        $fixture = new DeviceAuthorizedFixture();
+        $this->addFixture($fixture);
+        $this->executeFixtures();
 
-        self::assertEquals(1, $server->getConnectedDevices()->count());
-        $connectedDevice = $server->getConnectedDevices()->first();
+        /** @var ConnectedDevice $connectedDevice */
+        $connectedDevice = $fixture->getReference(DeviceAuthorizedFixture::AUTHORIZED_DEVICE_REFERENCE, ConnectedDevice::class);
+
+        /** @var Server $server */
+        $server = $fixture->getReference(DeviceAuthorizedFixture::SERVER_REFERENCE, Server::class);
 
         $token = $this->encryptionService->createTrustedDeviceToken($connectedDevice);
 
         // When
-        $response = $this->request('symfony-request.devyour.cloud', '/', '127.0.0.1', $token);
+        $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1', $token);
 
         // Then
         self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-
-        /** @var EntityManagerInterface $em */
-        $em = $this->getContainer()->get(EntityManagerInterface::class);
-        $em->refresh($server);
-
-        self::assertEquals(1, $server->getConnectedDevices()->count());
-
-        /** @var ConnectedDevice $connectedDevice */
-        $connectedDevice = $server->getConnectedDevices()->first();
-        self::assertTrue($connectedDevice->isActive());
     }
 
     public function testRequestPairingAction(): void

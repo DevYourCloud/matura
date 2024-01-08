@@ -20,7 +20,7 @@ class TrustedDeviceCookieEventListener
     ) {
     }
 
-    public function __invoke(ResponseEvent $responseEvent)
+    public function __invoke(ResponseEvent $responseEvent): void
     {
         if (!$this->appContext->createTrustedCookie()) {
             return;

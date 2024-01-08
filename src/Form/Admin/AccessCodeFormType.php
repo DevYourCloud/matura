@@ -12,7 +12,7 @@ class AccessCodeFormType extends AbstractType
     public const FIELD_CODE = 'access_code';
     public const FIELD_NAME = 'name';
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add(self::FIELD_CODE, TextType::class)

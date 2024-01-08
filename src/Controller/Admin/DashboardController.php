@@ -25,7 +25,7 @@ class DashboardController extends AbstractDashboardController
         private RequestStack $requestStack,
         private ConnectedDeviceManager $connectedDeviceManager,
         private ConnectedDeviceRepository $connectedDeviceRepository,
-        private TranslatorInterface $translator
+        // private TranslatorInterface $translator
     ) {
     }
 

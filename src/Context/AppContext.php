@@ -65,14 +65,7 @@ class AppContext
         return $this->server;
     }
 
-    // private function setServer(Server $server): self
-    // {
-    //     $this->server = $server;
-
-    //     return $this;
-    // }
-
-    public function getApp(): Application
+    public function getApp(): ?Application
     {
         if (!$this->initialized) {
             throw new \Exception('AppContext not initialized, use initializeFromRequest');
@@ -80,13 +73,6 @@ class AppContext
 
         return $this->app;
     }
-
-    // private function setApp(?Application $app): self
-    // {
-    //     $this->app = $app;
-
-    //     return $this;
-    // }
 
     public function getForwardedRequest(): ForwardedRequest
     {
@@ -96,13 +82,6 @@ class AppContext
 
         return $this->forwardedRequest;
     }
-
-    // private function setForwardedRequest(ForwardedRequest $forwardedRequest): self
-    // {
-    //     $this->forwardedRequest = $forwardedRequest;
-
-    //     return $this;
-    // }
 
     public function getConnectedDevice(): ?ConnectedDevice
     {

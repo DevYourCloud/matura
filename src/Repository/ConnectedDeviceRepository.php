@@ -15,7 +15,7 @@ class ConnectedDeviceRepository extends ServiceEntityRepository implements Conne
 
     public function getDeviceByHash(string $hash): ?ConnectedDevice
     {
-        return $this->findOneByHash(['hash' => $hash]);
+        return $this->findOneBy(['hash' => $hash]);
     }
 
     public function getDeviceByAccessCode(string $accessCode): ?ConnectedDevice

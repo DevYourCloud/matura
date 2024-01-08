@@ -45,7 +45,7 @@ class ApplicationCrudController extends AbstractCrudController
         ;
     }
 
-    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function persistEntity(EntityManagerInterface $entityManager, mixed $entityInstance): void
     {
         Assert::isInstanceOf($entityInstance, Application::class);
 
@@ -54,7 +54,7 @@ class ApplicationCrudController extends AbstractCrudController
         parent::persistEntity($entityManager, $entityInstance);
     }
 
-    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function updateEntity(EntityManagerInterface $entityManager, mixed $entityInstance): void
     {
         Assert::isInstanceOf($entityInstance, Application::class);
 

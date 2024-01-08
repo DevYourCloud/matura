@@ -38,10 +38,10 @@ class ConnectedDevice
     #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?\DateTime $accessCodeGeneratedAt = null;
 
-    #[ORM\ManyToOne(targetEntity: 'Server', inversedBy: 'connectedDevices')]
+    #[ORM\ManyToOne(targetEntity: Server::class, inversedBy: 'connectedDevices')]
     protected Server $server;
 
-    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'connectedDevices')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'connectedDevices')]
     protected ?User $user;
 
     public function getId(): ?int

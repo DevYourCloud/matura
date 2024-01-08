@@ -19,10 +19,10 @@ class Host
     #[ORM\Column(type: 'string', unique: true)]
     private ?string $domain;
 
-    #[ORM\OneToOne(targetEntity: 'Server', inversedBy: 'host')]
+    #[ORM\OneToOne(targetEntity: Server::class, inversedBy: 'host')]
     private ?Server $server = null;
 
-    #[ORM\OneToOne(targetEntity: 'Application', inversedBy: 'host')]
+    #[ORM\OneToOne(targetEntity: Application::class, inversedBy: 'host')]
     private ?Application $app = null;
 
     public function __construct()

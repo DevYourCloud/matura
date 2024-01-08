@@ -137,7 +137,7 @@ class AddAdminCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function validateUserData($email): void
+    private function validateUserData(string $email): void
     {
         // check if a user with the same email already exists.
         $existingEmail = $this->users->findOneBy(['email' => $email]);

@@ -52,7 +52,7 @@ class ServerCrudController extends AbstractCrudController
         ;
     }
 
-    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    public function persistEntity(EntityManagerInterface $entityManager, mixed $entityInstance): void
     {
         Assert::isInstanceOf($entityInstance, Server::class);
 

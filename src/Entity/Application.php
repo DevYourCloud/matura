@@ -26,10 +26,10 @@ class Application
     #[ORM\Column(type: 'integer')]
     protected ?int $port;
 
-    #[ORM\ManyToOne(targetEntity: 'Server', inversedBy: 'apps')]
+    #[ORM\ManyToOne(targetEntity: Server::class, inversedBy: 'apps')]
     protected ?Server $server = null;
 
-    #[ORM\OneToOne(targetEntity: 'Host', mappedBy: 'app', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Host::class, mappedBy: 'app', cascade: ['persist', 'remove'])]
     protected ?Host $host = null;
 
     public function __toString(): string

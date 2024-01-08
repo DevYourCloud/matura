@@ -10,5 +10,8 @@ interface ConnectedDeviceRepositoryInterface
 
     public function getDeviceByAccessCode(string $accessCode): ?ConnectedDevice;
 
+    /**
+     * @return ConnectedDevice[]
+     */
     public function getLastActiveDevices(): array;
 }

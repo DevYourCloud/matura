@@ -59,7 +59,7 @@ class ServerFixtures extends Fixture implements DependentFixtureInterface
             ->setActive(true)
             ->setUser($user)
             ->addApp($authorizedApp)
-            ->addConnectedDevices($this->getReference(ConnectedDeviceFixtures::getReferenceKey('authorized')))
+            ->addConnectedDevice($this->getReference(ConnectedDeviceFixtures::getReferenceKey('authorized')))
         ;
 
         $authorizedApp->createHost();
@@ -76,7 +76,7 @@ class ServerFixtures extends Fixture implements DependentFixtureInterface
             ->setActive(true)
             ->setUser($user)
             ->addApp($symfonyRequestApp)
-            ->addConnectedDevices($this->getReference(ConnectedDeviceFixtures::getReferenceKey('symfony-request')))
+            ->addConnectedDevice($this->getReference(ConnectedDeviceFixtures::getReferenceKey('symfony-request')))
         ;
 
         $symfonyRequestApp->createHost();

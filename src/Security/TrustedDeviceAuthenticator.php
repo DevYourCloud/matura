@@ -50,6 +50,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         try {
             $this->appContext->initializeFromRequest($forwardedRequest);
         } catch (\Exception $e) {
+            dump($e);
             throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] Initialization failed : %s - %s', $e->getMessage(), $forwardedRequest->getForwardedHost()));
         }
 
@@ -61,7 +62,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
             // @todo nick Persist the new device with CQRS
             $connectedDevice = $this->connectedDeviceFactory->build($forwardedRequest, $this->appContext->getServer());
             $this->appContext->setConnectedDevice($connectedDevice);
-            
+
             throw new CustomUserMessageAuthenticationException('[COOKIE AUTH] No trusted cookie, setting up for creation');
         }
 

@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Table(name: 'server')]
 #[ORM\Entity(repositoryClass: 'App\Repository\ServerRepository')]
@@ -25,19 +26,19 @@ class Server
     #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $description = null;
 
-    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'servers')]
-    protected ?User $user = null;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'servers')]
+    protected ?UserInterface $user = null;
 
-    #[ORM\OneToOne(targetEntity: 'Host', mappedBy: 'server', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Host::class, mappedBy: 'server', cascade: ['persist', 'remove'])]
     protected ?Host $host = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $pairing = false;
 
-    #[ORM\OneToMany(targetEntity: 'Application', mappedBy: 'server', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: Application::class, mappedBy: 'server', cascade: ['persist', 'remove'])]
     private Collection $apps;
 
-    #[ORM\OneToMany(targetEntity: 'ConnectedDevice', mappedBy: 'server', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: ConnectedDevice::class, mappedBy: 'server', cascade: ['persist', 'remove'])]
     private Collection $connectedDevices;
 
     public function __construct()
@@ -57,7 +58,7 @@ class Server
         return $this->id;
     }
 
-    public function setId($id): self
+    public function setId(int $id): self
     {
         $this->id = $id;
 
@@ -88,12 +89,12 @@ class Server
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUser(): ?UserInterface
     {
         return $this->user;
     }
 
-    public function setUser(User $user): self
+    public function setUser(UserInterface $user): self
     {
         $this->user = $user;
 
@@ -166,7 +167,7 @@ class Server
         return $this->connectedDevices;
     }
 
-    public function addConnectedDevices(ConnectedDevice $connectedDevice): self
+    public function addConnectedDevice(ConnectedDevice $connectedDevice): self
     {
         if (!$this->connectedDevices->contains($connectedDevice)) {
             $this->connectedDevices->add($connectedDevice);
@@ -176,19 +177,22 @@ class Server
         return $this;
     }
 
-    public function removeConnectedDevices(ConnectedDevice $connectedDevice): self
+    public function removeConnectedDevice(ConnectedDevice $connectedDevice): self
     {
         throw new \Exception('Not yet implemented');
         // if ($this->connectedDevices->contains($connectedDevice)) {
         //     $this->connectedDevices->remove($connectedDevice);
         // }
 
-        return $this;
+        // return $this;
     }
 
-    public function setConnectedDevices($connectedDevices): self
+    /**
+     * @param ConnectedDevice[] $connectedDevices
+     */
+    public function setConnectedDevices(array $connectedDevices): self
     {
-        $this->connectedDevices = $connectedDevices;
+        $this->connectedDevices = new ArrayCollection($connectedDevices);
 
         return $this;
     }
