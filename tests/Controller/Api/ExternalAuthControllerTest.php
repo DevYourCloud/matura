@@ -72,7 +72,10 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1', $token);
 
         // Then
+        $this->em->refresh($server);
         self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        self::assertEquals(1, count($server->getConnectedDevices()));
+        
     }
 
     public function testRequestPairingAction(): void
