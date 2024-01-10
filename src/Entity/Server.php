@@ -162,6 +162,9 @@ class Server
         return $this;
     }
 
+    /**
+     * @return Collection<T, ConnectedDevice>
+     */
     public function getConnectedDevices(): Collection
     {
         return $this->connectedDevices;

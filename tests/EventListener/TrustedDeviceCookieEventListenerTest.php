@@ -13,6 +13,7 @@ use App\Tests\Builder\HostEntityBuilder;
 use App\Tests\Builder\ServerEntityBuilder;
 use App\Tests\Builder\ServiceBuilder;
 use App\Tests\Mock\HostRepositoryMock;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,8 +37,10 @@ class TrustedDeviceCookieEventListenerTest extends TestCase
 
         $this->encryptionService = ServiceBuilder::getEncryptionService('30');
         $this->appContext = ServiceBuilder::getAppContext($this->hostRepository);
+        $factory = ServiceBuilder::getConnectedDeviceFactory($this->encryptionService, $this->createMock(EntityManagerInterface::class));
 
-        $this->trustedDeviceCookieListener = ServiceBuilder::getTrustedDeviceCookieListener($this->appContext, $this->encryptionService);
+        $this->trustedDeviceCookieListener = ServiceBuilder::getTrustedDeviceCookieListener(
+            $this->appContext, $this->encryptionService, $factory);
     }
 
     public function testCookieAddedOnRequested(): void

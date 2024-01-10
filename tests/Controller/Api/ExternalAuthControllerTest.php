@@ -3,21 +3,21 @@
 namespace App\Tests\Controller\Api;
 
 use App\DataFixtures\DeviceAuthorizedFixture;
+use App\DataFixtures\DeviceCanBeAddedFixture;
 use App\DataFixtures\DeviceNotAuthorizedFixture;
 use App\Entity\ConnectedDevice;
 use App\Entity\Server;
-use App\Repository\HostRepositoryInterface;
+use App\Service\ConnectedDeviceManager;
 use App\Service\EncryptionService;
 use App\Tests\FixtureAwareWebTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\BrowserKit\Cookie as BrowserKitCookie;
 use Symfony\Component\HttpFoundation\Response;
 
 class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 {
-    private HostRepositoryInterface $hostRepository;
-
     private EncryptionService $encryptionService;
+
+    private ConnectedDeviceManager $connectedDeviceManager;
 
     private string $trustedCookieName;
 
@@ -27,9 +27,9 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 
         $container = self::getContainer();
 
-        $this->hostRepository = $container->get(HostRepositoryInterface::class);
         $this->trustedCookieName = $container->getParameter('trusted_device_cookie_name');
         $this->encryptionService = $container->get(EncryptionService::class);
+        $this->connectedDeviceManager = $container->get(ConnectedDeviceManager::class);
     }
 
     public function testRequestAuthenticationFailedAction(): void
@@ -75,34 +75,49 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         $this->em->refresh($server);
         self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         self::assertEquals(1, count($server->getConnectedDevices()));
-        
     }
 
-    public function testRequestPairingAction(): void
+    public function testAllowCreatingANewDevice(): void
     {
-        self::markTestSkipped();
-
         // Given
-        $host = $this->hostRepository->findOneByDomain('pairing-request.devyour.cloud');
-        $server = $host->getServer();
-        self::assertEquals(0, $server->getConnectedDevices()->count());
+        $fixture = new DeviceCanBeAddedFixture();
+        $this->addFixture($fixture);
+        $this->executeFixtures();
+
+        /** @var Server $server */
+        $server = $fixture->getReference(DeviceCanBeAddedFixture::SERVER_REFERENCE, Server::class);
 
         // When
-        $host = 'pairing-request.devyour.cloud';
-        $path = '/';
-        $response = $this->request($host, $path, '127.0.0.1');
+        $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1');
 
         // Then
         self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
 
-        /** @var EntityManagerInterface $em */
-        $em = $this->getContainer()->get(EntityManagerInterface::class);
-        $em->refresh($server);
+        $this->em->refresh($server);
 
         self::assertEquals(1, $server->getConnectedDevices()->count());
 
+        /** @var ConnectedDevice */
+        $connectedDevice = $server->getConnectedDevices()->first();
+
+        self::assertFalse($connectedDevice->isActive());
+        self::assertNotEmpty($connectedDevice->getAccessCode());
+
         $cookie = $this->client->getCookieJar()->get($this->trustedCookieName);
-        self::assertNotNull($cookie);
+        self::assertNotEmpty($cookie->getValue());
+
+        // When
+        $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1', $cookie->getValue());
+
+        // Then
+        self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+
+        // When
+        $connectedDevice = $this->connectedDeviceManager->validateAccessCode($connectedDevice->getAccessCode());
+
+        // Then
+        self::assertTrue($connectedDevice->isActive());
+        self::assertNull($connectedDevice->getAccessCode());
     }
 
     private function request($host, $uri, $ip, $token = null): Response

@@ -22,12 +22,14 @@ class ServiceBuilder
     public static function getTrustedDeviceCookieListener(
         AppContext $appContext,
         EncryptionService $encryptionService,
+        ConnectedDeviceFactory $connectedDeviceFactory,
         $trustedCookieName = '_truster_device'
     ): TrustedDeviceCookieEventListener {
         return new TrustedDeviceCookieEventListener(
             $appContext,
             $encryptionService,
             new NullLogger(),
+            $connectedDeviceFactory,
             $trustedCookieName
         );
     }

@@ -3,6 +3,7 @@
 namespace App\EventListener;
 
 use App\Context\AppContext;
+use App\Factory\ConnectedDeviceFactory;
 use App\Service\EncryptionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -16,6 +17,7 @@ class TrustedDeviceCookieEventListener
         private AppContext $appContext,
         private EncryptionService $encryptionService,
         private LoggerInterface $logger,
+        private ConnectedDeviceFactory $connectedDeviceFactory,
         private string $trustedDeviceCookieName,
     ) {
     }
@@ -36,7 +38,13 @@ class TrustedDeviceCookieEventListener
 
         $response = $responseEvent->getResponse();
 
-        $token = $this->encryptionService->createTrustedDeviceToken($this->appContext->getConnectedDevice());
+        // Creating new device
+        $connectedDevice = $this->connectedDeviceFactory->build(
+            $this->appContext->getForwardedRequest(),
+            $this->appContext->getServer()
+        );
+
+        $token = $this->encryptionService->createTrustedDeviceToken($connectedDevice);
 
         // Set the cookie
         $cookie = new Cookie(
