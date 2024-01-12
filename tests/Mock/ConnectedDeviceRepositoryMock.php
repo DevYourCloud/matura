@@ -7,25 +7,38 @@ use App\Repository\ConnectedDeviceRepositoryInterface;
 
 class ConnectedDeviceRepositoryMock implements ConnectedDeviceRepositoryInterface
 {
-    private ?ConnectedDevice $device = null;
+    /** @var ConnectedDevice[] */
+    private array $devices = [];
 
-    public function setDevice(ConnectedDevice $connectedDevice): void
+    public function addDevice(ConnectedDevice $connectedDevice): void
     {
-        $this->device = $connectedDevice;
+        $this->devices[] = $connectedDevice;
     }
 
     public function getDeviceByHash(string $hash): ?ConnectedDevice
     {
-        return $this->device;
+        foreach ($this->devices as $device) {
+            if ($device->getHash() === $hash) {
+                return $device;
+            }
+        }
+
+        return null;
     }
 
     public function getDeviceByAccessCode(string $accessCode): ?ConnectedDevice
     {
-        return $this->device;
+        foreach ($this->devices as $device) {
+            if ($device->getAccessCode() === $accessCode) {
+                return $device;
+            }
+        }
+
+        return null;
     }
 
     public function getLastActiveDevices(): array
     {
-        return [$this->device];
+        return $this->devices;
     }
 }

@@ -21,7 +21,7 @@ class ConnectedDeviceManager
         try {
             $decoded = $this->encryptionService->decodeTrustedDeviceToken($encodedToken);
         } catch (\Exception $e) {
-            throw new DecodingTokenFailed(sprintf('[COOKIE AUTH] Error decrypting cookie : %s - %s', $e->getMessage(), $encodedToken));
+            throw new DecodingTokenFailed(sprintf('[COOKIE AUTH] Error decrypting token : %s - %s', $e->getMessage(), $encodedToken));
         }
 
         $this->logger->debug(sprintf('Looking for a device with token "%s"', $decoded));

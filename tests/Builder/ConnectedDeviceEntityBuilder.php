@@ -10,6 +10,7 @@ class ConnectedDeviceEntityBuilder
     private ?Server $server = null;
     private ?string $hash = null;
     private ?string $accessCode = null;
+    private ?bool $active = false;
 
     public static function create(): self
     {
@@ -38,6 +39,7 @@ class ConnectedDeviceEntityBuilder
             ->setUserAgent('UserAgent')
             ->setCreatedAt(new \DateTime('now'))
             ->setAccessCodeGeneratedAt(new \DateTime('now'))
+            ->setActive($this->active)
         ;
 
         return $connectedDevice;
@@ -60,6 +62,13 @@ class ConnectedDeviceEntityBuilder
     public function withAccessCode(string $accessCode): self
     {
         $this->accessCode = $accessCode;
+
+        return $this;
+    }
+
+    public function withActive(bool $active): self
+    {
+        $this->active = $active;
 
         return $this;
     }
