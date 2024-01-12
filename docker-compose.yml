@@ -25,7 +25,7 @@ services:
     networks:
       default: ~
       traefik: ~
-  
+
   nginx:
     build: docker/nginx
     labels:
@@ -41,20 +41,6 @@ services:
       - php
     ports:
       - 8082:80
-    networks:
-      default: ~
-      traefik: ~
-  
-  nodejs:
-    build: docker/nodejs
-    depends_on:
-      - php
-    environment:
-      - APP_ENV=dev
-      - PHP_HOST=php
-    volumes:
-      - .:/var/www:rw,cached
-      - ./public:/www/var/public:rw,delegated
     networks:
       default: ~
       traefik: ~

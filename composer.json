@@ -13,6 +13,8 @@
         "easycorp/easyadmin-bundle": "^4.0",
         "lexik/jwt-authentication-bundle": "^2.18",
         "stof/doctrine-extensions-bundle": "^1.7",
+        "symfony/asset": "6.4.*",
+        "symfony/asset-mapper": "6.4.*",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",
         "symfony/flex": "^2.2",
@@ -22,9 +24,11 @@
         "symfony/runtime": "6.4.*",
         "symfony/security-bundle": "6.4.*",
         "symfony/serializer": "6.4.*",
+        "symfony/twig-bundle": "6.4.*",
         "symfony/validator": "6.4.*",
-        "symfony/webpack-encore-bundle": "^1.16",
         "symfony/yaml": "6.4.*",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/twig": "^2.12|^3.0",
         "webmozart/assert": "^1.11"
     },
     "config": {
@@ -58,7 +62,8 @@
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "importmap:install": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"
@@ -90,9 +95,6 @@
         "symfony/maker-bundle": "^1.48",
         "symfony/phpunit-bridge": "6.4.*",
         "symfony/stopwatch": "6.4.*",
-        "symfony/twig-bundle": "6.4.*",
-        "symfony/web-profiler-bundle": "6.4.*",
-        "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "symfony/web-profiler-bundle": "6.4.*"
     }
 }

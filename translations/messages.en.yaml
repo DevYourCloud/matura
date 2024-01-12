@@ -6,6 +6,7 @@ app:
       last_devices_access: Last active devices
     access_code:
       add_device: Add a new device
+      add_name_for_device: Give a name for your device ?
       add_device_with_code: "Enter the code of the new device here:"
       how_to_get_code: The first time you access an app, you will be prompted a authentication code
       validate: Accept

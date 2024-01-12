@@ -15,8 +15,8 @@ class AccessCodeFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add(self::FIELD_CODE, TextType::class)
-            ->add(self::FIELD_NAME, IntegerType::class)
+            ->add(self::FIELD_CODE, IntegerType::class)
+            ->add(self::FIELD_NAME, TextType::class)
         ;
     }
 }
