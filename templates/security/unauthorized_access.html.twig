@@ -5,7 +5,7 @@
 
 {% block body %}
 
-    <article class="grid border-left-red">
+    <article class="grid border-left-red unauthorize-page">
         <div>
             <hgroup>
                 <h1 class="text-center">
@@ -17,12 +17,12 @@
                 <h2 class="text-center">{{ 'app.front.unauthorize.help_text'|trans }}</h2>
             </hgroup>
 
-            <div>
+            <div class="text-center">
                 {% if device is not null %}
-                    <p class="text-center">{{ 'app.front.unauthorize.enter_code'|trans }}</p>
-                    <hgroup>
+                    <p>{{ 'app.front.unauthorize.enter_code'|trans }}</p>
+                    <kbd class="device-code">
                         {{ device.accessCode }}
-                    </hgroup>
+                    </kbd>
                 {% else %}
                     <p class="text-center">{{ 'app.front.unauthorize.app_access'|trans }}</p>
                 {% endif %}

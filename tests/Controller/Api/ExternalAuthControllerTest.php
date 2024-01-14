@@ -120,6 +120,16 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         self::assertNull($connectedDevice->getAccessCode());
     }
 
+    public function testWrongForwardedAuthRequest(): void
+    {
+        // When
+        $this->client->request('GET', '/auth', [], [], []);
+        $response = $this->client->getResponse();
+
+        // Then
+        self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+    }
+
     private function request(string $host, string $uri, string $ip, string $token = null): Response
     {
         $params = [

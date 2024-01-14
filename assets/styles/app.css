@@ -24,7 +24,6 @@ body {
   background-image: url("../images/background.svg");
   background-size: 50%;
   background-repeat: repeat;
-  height: 100vh;
 }
 
 /* Grid */
@@ -144,4 +143,15 @@ form .error {
 
 .border-left-red {
   border-left: 2px solid var(--cornell-red);
+}
+
+body .unauthorize-page {
+  
+  padding-top: 0;
+  padding-bottom: 0;
+
+  .device-code {
+    font-size: 28px;
+    
+  }
 }

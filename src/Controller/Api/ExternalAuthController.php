@@ -12,9 +12,14 @@ class ExternalAuthController extends AbstractController
     #[Route(path: '/auth', name: 'app_request_auth')]
     public function requestAuthenticationAction(AppContext $appContext, string $appHost): Response
     {
+        $device = null;
+        if ($appContext->hasValidForwardedAuthRequest()) {
+            $device = $appContext->getConnectedDevice();
+        }
+
         return new Response(
             $this->renderView('security/unauthorized_access.html.twig', [
-                'device' => $appContext->getConnectedDevice(),
+                'device' => $device,
                 'appHost' => $appHost,
             ]),
             Response::HTTP_UNAUTHORIZED
