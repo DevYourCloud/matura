@@ -7,9 +7,7 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
-.history
-.bash_history
-.composer
+
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
@@ -38,3 +36,10 @@ node_modules
 /public/assets/
 /assets/vendor
 ###< symfony/asset-mapper ###
+
+## Personal
+.history
+.bash_history
+.composer
+public/build/
+package
