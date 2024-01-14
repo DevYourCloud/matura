@@ -14,7 +14,7 @@ use Psr\Log\NullLogger;
 
 class ServiceBuilder
 {
-    public static function getEncryptionService(string $expirationDelay = '30'): EncryptionService
+    public static function getEncryptionService(int $expirationDelay = 30): EncryptionService
     {
         return new EncryptionService('SALT', 'SECRET_KEY', '1', $expirationDelay);
     }
@@ -23,7 +23,7 @@ class ServiceBuilder
         AppContext $appContext,
         EncryptionService $encryptionService,
         ConnectedDeviceFactory $connectedDeviceFactory,
-        $trustedCookieName = '_truster_device'
+        string $trustedCookieName = '_truster_device'
     ): TrustedDeviceCookieEventListener {
         return new TrustedDeviceCookieEventListener(
             $appContext,

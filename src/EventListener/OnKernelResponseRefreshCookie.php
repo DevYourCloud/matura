@@ -37,7 +37,7 @@ class OnKernelResponseRefreshCookie
 
         $expirationDelay = $expirationDate->diff($now);
 
-        if ($expirationDelay && $expirationDelay->days < $expirationLifetime) {
+        if ($expirationDelay instanceof \DateInterval && $expirationDelay->days < $expirationLifetime) {
             $response = $event->getResponse();
 
             // Set the cookie

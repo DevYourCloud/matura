@@ -120,7 +120,7 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         self::assertNull($connectedDevice->getAccessCode());
     }
 
-    private function request($host, $uri, $ip, $token = null): Response
+    private function request(string $host, string $uri, string $ip, string $token = null): Response
     {
         $params = [
             'HTTP_X-FORWARDED-METHOD' => 'GET',
@@ -132,7 +132,7 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 
         if ($token) {
             $this->client->getCookieJar()->set(
-                new BrowserKitCookie($this->trustedCookieName, \urlencode($token), strtotime('+1 day'))
+                new BrowserKitCookie($this->trustedCookieName, \urlencode($token), (string) strtotime('+1 day'))
             );
         }
 

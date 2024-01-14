@@ -163,7 +163,7 @@ class Server
     }
 
     /**
-     * @return Collection<T, ConnectedDevice>
+     * @return Collection<int, ConnectedDevice>
      */
     public function getConnectedDevices(): Collection
     {

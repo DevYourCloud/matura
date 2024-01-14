@@ -14,7 +14,7 @@ class EncryptionService
         private string $salt,
         private string $secretKey,
         private string $trustedDeviceVersion,
-        private string $tokenLifetime,
+        private int $tokenLifetime,
     ) {
     }
 

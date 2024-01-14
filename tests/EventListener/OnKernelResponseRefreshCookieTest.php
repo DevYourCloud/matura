@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 class OnKernelResponseRefreshCookieTest extends TestCase
 {
     private EncryptionService $encryptionService;
-    private string $expirationDelay = '30'; // days
+    private int $expirationDelay = 30; // days
     private string $cookieName = 'trusted_cookie';
 
     public function setup(): void

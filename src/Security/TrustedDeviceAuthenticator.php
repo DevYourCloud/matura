@@ -4,7 +4,6 @@ namespace App\Security;
 
 use App\Context\AppContext;
 use App\Exception\DecodingTokenFailed;
-use App\Factory\ConnectedDeviceFactory;
 use App\Model\ForwardedRequest;
 use App\Service\ConnectedDeviceManager;
 use App\Voter\AccessVoter;
@@ -27,7 +26,6 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         private string $trustedDeviceCookieName,
         private ConnectedDeviceManager $connectedDeviceManager,
         private AuthorizationCheckerInterface $authorizationChecker,
-        private ConnectedDeviceFactory $connectedDeviceFactory,
         private AppContext $appContext,
         private LoggerInterface $logger
     ) {

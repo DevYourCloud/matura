@@ -35,7 +35,7 @@ class TrustedDeviceCookieEventListenerTest extends TestCase
     {
         $this->hostRepository = new HostRepositoryMock();
 
-        $this->encryptionService = ServiceBuilder::getEncryptionService('30');
+        $this->encryptionService = ServiceBuilder::getEncryptionService(30);
         $this->appContext = ServiceBuilder::getAppContext($this->hostRepository);
         $factory = ServiceBuilder::getConnectedDeviceFactory($this->encryptionService, $this->createMock(EntityManagerInterface::class));
 

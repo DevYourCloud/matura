@@ -39,7 +39,6 @@ class TrustedDeviceAuthenticatorTest extends TestCase
             '_trusted_device',
             $connectedDeviceManager,
             $authorizationChecker,
-            $connectedDeviceFactory,
             $appContext,
             new NullLogger()
         );
