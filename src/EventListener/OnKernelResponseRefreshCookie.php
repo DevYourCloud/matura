@@ -1,0 +1,56 @@
+<?php
+
+namespace App\EventListener;
+
+use App\Service\EncryptionService;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+
+#[AsEventListener()]
+class OnKernelResponseRefreshCookie
+{
+    public function __construct(
+        private EncryptionService $encryptionService,
+        private string $trustedDeviceCookieName,
+        private int $tokenLifetime,
+    ) {
+    }
+
+    public function __invoke(ResponseEvent $event): void
+    {
+        $request = $event->getRequest();
+        $cookie = $request->cookies->get($this->trustedDeviceCookieName, null);
+
+        if (null === $cookie) {
+            return;
+        }
+
+        $cookie = Cookie::fromString($cookie);
+
+        $expirationLifetime = ((int) $this->tokenLifetime) - 1;
+
+        $expirationDate = new \DateTime();
+        $expirationDate->setTimestamp($cookie->getExpiresTime());
+
+        $now = new \DateTime('now');
+
+        $expirationDelay = $expirationDate->diff($now);
+
+        if ($expirationDelay && $expirationDelay->days < $expirationLifetime) {
+            $response = $event->getResponse();
+
+            // Set the cookie
+            $refreshedCookie = new Cookie(
+                $this->trustedDeviceCookieName,
+                $cookie->getValue(),
+                $this->encryptionService->getTokenExpirationDate(),
+                '/',
+                $cookie->getDomain(),
+                true,
+            );
+
+            $response->headers->setCookie($refreshedCookie);
+        }
+    }
+}

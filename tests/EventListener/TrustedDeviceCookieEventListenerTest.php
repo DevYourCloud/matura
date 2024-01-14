@@ -78,7 +78,7 @@ class TrustedDeviceCookieEventListenerTest extends TestCase
         $responseEvent = new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
             $this->createMock(Request::class),
-            1,
+            HttpKernelInterface::MAIN_REQUEST,
             new Response()
         );
 

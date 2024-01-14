@@ -30,3 +30,7 @@ services:
       $trustedDeviceVersion: "%trusted_device_version%"
       $tokenLifetime: "%token_lifetime%"
       $secretKey: "%encryption_key%"
+
+  App\EventListener\OnKernelResponseRefreshCookie:
+    arguments:
+      $tokenLifetime: "%token_lifetime%"
