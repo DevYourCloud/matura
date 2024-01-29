@@ -46,6 +46,7 @@ class ConnectedDeviceCrudController extends AbstractCrudController
 
         return [
             IdField::new('id'),
+
             TextField::new('name'),
             AssociationField::new('server')
                 ->setFormTypeOption('query_builder', function (ORMEntityRepository $entityRepository) use ($user) {
