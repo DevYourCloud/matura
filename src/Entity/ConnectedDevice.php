@@ -116,9 +116,9 @@ class ConnectedDevice
         return $this;
     }
 
-    public function hasAccessToApp(Application $app): bool
+    public function hasAccessToApp(?Application $app): bool
     {
-        return $this->user->isAdmin();
+        return $this->user && $this->user->isAdmin();
     }
 
     public function getAccessCode(): ?string
@@ -153,6 +153,18 @@ class ConnectedDevice
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

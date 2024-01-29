@@ -175,6 +175,7 @@ class Server
         if (!$this->connectedDevices->contains($connectedDevice)) {
             $this->connectedDevices->add($connectedDevice);
             $connectedDevice->setServer($this);
+            $connectedDevice->setUser($this->user);
         }
 
         return $this;

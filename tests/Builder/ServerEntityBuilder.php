@@ -4,11 +4,13 @@ namespace App\Tests\Builder;
 
 use App\Entity\Host;
 use App\Entity\Server;
+use App\Entity\User;
 
 class ServerEntityBuilder
 {
     private ?Host $host = null;
     private bool $pairing = false;
+    private ?User $user = null;
 
     public static function create(): self
     {
@@ -21,6 +23,10 @@ class ServerEntityBuilder
 
         if (null !== $this->host) {
             $server->setHost($this->host);
+        }
+
+        if (null !== $this->user) {
+            $server->setUser($this->user);
         }
 
         return $server
@@ -40,6 +46,13 @@ class ServerEntityBuilder
     public function withPairing(bool $pairing): self
     {
         $this->pairing = $pairing;
+
+        return $this;
+    }
+
+    public function withUser(User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

@@ -28,7 +28,7 @@ class ServerCrudController extends AbstractCrudController
             TextField::new('name'),
             TextField::new('description'),
             AssociationField::new('host')->renderAsEmbeddedForm(),
-            BooleanField::new('active')->setValue(true),
+            BooleanField::new('active'),
             CollectionField::new('apps')
                 ->hideWhenCreating()
                 ->hideWhenUpdating(),

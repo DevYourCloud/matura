@@ -34,10 +34,8 @@ class AccessVoter extends Voter
             return false;
         }
 
-        // @todo nick How to detect app dashboard?
-        $app = $this->appContext->getApp();
-        if (null === $app) {
-            return true;
+        if ($subject->getUser()?->getUserIdentifier() !== $this->appContext->getServer()->getUser()->getUserIdentifier()) {
+            return false;
         }
 
         return $subject->hasAccessToApp($this->appContext->getApp());

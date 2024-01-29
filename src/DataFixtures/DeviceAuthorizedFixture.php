@@ -22,7 +22,7 @@ class DeviceAuthorizedFixture extends Fixture
         $user
             ->setEmail('nick@test.fr')
             ->setFullName('Nick')
-            ->setRoles(['ROLE_USER'])
+            ->setRoles(['ROLE_USER', 'ROLE_ADMIN'])
             ->setPassword('test')
             ->setActive(true)
         ;
@@ -33,6 +33,7 @@ class DeviceAuthorizedFixture extends Fixture
             ->setAlias('n')
             ->setName('exampleApp')
             ->setPort(80)
+            ->setActive(true)
         ;
 
         // Server

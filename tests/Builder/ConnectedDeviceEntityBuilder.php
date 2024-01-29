@@ -4,6 +4,7 @@ namespace App\Tests\Builder;
 
 use App\Entity\ConnectedDevice;
 use App\Entity\Server;
+use App\Entity\User;
 
 class ConnectedDeviceEntityBuilder
 {
@@ -11,6 +12,7 @@ class ConnectedDeviceEntityBuilder
     private ?string $hash = null;
     private ?string $accessCode = null;
     private ?bool $active = false;
+    private ?User $user = null;
 
     public static function create(): self
     {
@@ -31,6 +33,10 @@ class ConnectedDeviceEntityBuilder
 
         if (null !== $this->hash) {
             $connectedDevice->setHash($this->hash);
+        }
+
+        if (null !== $this->user) {
+            $connectedDevice->setUser($this->user);
         }
 
         $connectedDevice
@@ -69,6 +75,13 @@ class ConnectedDeviceEntityBuilder
     public function withActive(bool $active): self
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    public function withUser(User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

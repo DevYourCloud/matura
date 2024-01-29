@@ -34,7 +34,7 @@ class ApplicationCrudController extends AbstractCrudController
                 ->hideOnDetail(),
             IntegerField::new('port'),
             AssociationField::new('server'),
-            BooleanField::new('active')->setValue(true),
+            BooleanField::new('active'),
         ];
     }
 

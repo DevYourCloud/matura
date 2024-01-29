@@ -48,7 +48,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         try {
             $this->appContext->initializeFromRequest($forwardedRequest);
         } catch (\Exception $e) {
-            throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] Initialization failed : %s - %s', $e->getMessage(), $forwardedRequest->getForwardedHost()));
+            throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] Initialization failed : %s', $e->getMessage()));
         }
 
         $server = $this->appContext->getServer();
