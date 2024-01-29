@@ -16,33 +16,18 @@ class TrustedDeviceCookieEventListener
     public function __construct(
         private AppContext $appContext,
         private EncryptionService $encryptionService,
-        private LoggerInterface $logger,
-        private ConnectedDeviceFactory $connectedDeviceFactory,
         private string $trustedDeviceCookieName,
     ) {
     }
 
     public function __invoke(ResponseEvent $responseEvent): void
     {
-        if (!$this->appContext->createTrustedCookie()) {
-            return;
-        }
-
-        $server = $this->appContext->getServer();
-
-        if (!$server->isPairing()) {
-            $this->logger->info(sprintf('Paring not active on server %s', $server->getName()));
-
+        if (!$this->appContext->createTrustedCookie() || null === $this->appContext->getConnectedDevice()) {
             return;
         }
 
         $response = $responseEvent->getResponse();
-
-        // Creating new device
-        $connectedDevice = $this->connectedDeviceFactory->build(
-            $this->appContext->getForwardedRequest(),
-            $this->appContext->getServer()
-        );
+        $connectedDevice = $this->appContext->getConnectedDevice();
 
         $token = $this->encryptionService->createTrustedDeviceToken($connectedDevice);
 

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Table(name: 'connected_device')]
 #[ORM\Entity(repositoryClass: 'App\Repository\ConnectedDeviceRepository')]
@@ -42,7 +43,7 @@ class ConnectedDevice
     protected Server $server;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'connectedDevices')]
-    protected ?User $user;
+    protected ?UserInterface $user;
 
     public function getId(): ?int
     {
@@ -118,7 +119,11 @@ class ConnectedDevice
 
     public function hasAccessToApp(?Application $app): bool
     {
-        return $this->user && $this->user->isAdmin();
+        if (!$this->user instanceof User) {
+            return false;
+        }
+
+        return $this->user->isAdmin();
     }
 
     public function getAccessCode(): ?string
@@ -157,12 +162,12 @@ class ConnectedDevice
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUser(): ?UserInterface
     {
         return $this->user;
     }
 
-    public function setUser(User $user): self
+    public function setUser(UserInterface $user): self
     {
         $this->user = $user;
 

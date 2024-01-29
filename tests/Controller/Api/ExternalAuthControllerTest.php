@@ -89,6 +89,9 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 
         // When
         $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1');
+        $crawler = $this->client->getCrawler();
+
+        $node = $crawler->filter('.device-code')->text();
 
         // Then
         self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
@@ -102,6 +105,7 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 
         self::assertFalse($connectedDevice->isActive());
         self::assertNotEmpty($connectedDevice->getAccessCode());
+        self::assertEquals($connectedDevice->getAccessCode(), $node);
 
         $cookie = $this->client->getCookieJar()->get($this->trustedCookieName);
         self::assertNotEmpty($cookie->getValue());

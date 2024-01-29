@@ -3,6 +3,7 @@
 namespace App\Tests\Builder;
 
 use App\Context\AppContext;
+use App\EventListener\OnKernelRequestCreateDevice;
 use App\EventListener\TrustedDeviceCookieEventListener;
 use App\Factory\ConnectedDeviceFactory;
 use App\Repository\ConnectedDeviceRepositoryInterface;
@@ -22,15 +23,23 @@ class ServiceBuilder
     public static function getTrustedDeviceCookieListener(
         AppContext $appContext,
         EncryptionService $encryptionService,
-        ConnectedDeviceFactory $connectedDeviceFactory,
         string $trustedCookieName = '_truster_device'
     ): TrustedDeviceCookieEventListener {
         return new TrustedDeviceCookieEventListener(
             $appContext,
             $encryptionService,
-            new NullLogger(),
-            $connectedDeviceFactory,
             $trustedCookieName
+        );
+    }
+
+    public static function getOnKernelRequestCreateDeviceListener(
+        AppContext $appContext,
+        ConnectedDeviceFactory $connectedDeviceFactory
+    ): OnKernelRequestCreateDevice {
+        return new OnKernelRequestCreateDevice(
+            $appContext,
+            $connectedDeviceFactory,
+            new NullLogger()
         );
     }
 

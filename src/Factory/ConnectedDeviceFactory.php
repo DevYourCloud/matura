@@ -21,13 +21,14 @@ class ConnectedDeviceFactory
         $connectedDevice = new ConnectedDevice();
         $connectedDevice
             ->setActive(false)
-            ->setServer($server)
             ->setIp($request->getForwardedIp())
             ->setUserAgent($request->getUserAgent())
             ->setCreatedAt(new \DateTime('now'))
             ->setAccessCode($this->encryptionService->createAccessCode())
             ->setAccessCodeGeneratedAt(new \DateTime('now'))
         ;
+
+        $server->addConnectedDevice($connectedDevice);
 
         $connectedDevice->setHash($this->encryptionService->createConnectedDeviceHash($connectedDevice));
 

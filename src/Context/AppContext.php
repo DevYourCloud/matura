@@ -85,10 +85,6 @@ class AppContext
 
     public function getConnectedDevice(): ?ConnectedDevice
     {
-        if (!$this->initialized) {
-            throw new \Exception('AppContext not initialized, use initializeFromRequest');
-        }
-
         return $this->connectedDevice;
     }
 

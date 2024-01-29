@@ -6,6 +6,7 @@ use App\Entity\User;
 
 class UserEntityBuilder
 {
+    /** @var string[] */
     private $roles = [];
 
     public static function create(): self
@@ -29,6 +30,7 @@ class UserEntityBuilder
         ;
     }
 
+    /** @param string[] $roles */
     public function withRoles(array $roles): self
     {
         $this->roles = $roles;

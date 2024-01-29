@@ -36,7 +36,7 @@ class ConnectedDeviceCrudController extends AbstractCrudController
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->remove(Crud::PAGE_INDEX, ACTION::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
         ;
     }
 
@@ -46,6 +46,7 @@ class ConnectedDeviceCrudController extends AbstractCrudController
 
         return [
             IdField::new('id'),
+            TextField::new('name'),
             AssociationField::new('server')
                 ->setFormTypeOption('query_builder', function (ORMEntityRepository $entityRepository) use ($user) {
                     return $entityRepository->createQueryBuilder('s')
