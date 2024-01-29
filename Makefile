@@ -77,12 +77,8 @@ batch:
 	@$(COMPOSE) exec --user=$(user) $(WEB) watch -n 60 php ./bin/console app:u > batch.log
 
 .PHONY: package
-package: yarn-prod-assets
+package:
 	@$(COMPOSE) exec --user=$(user) $(WEB) ./bin/package
-
-.PHONY: yarn-prod-assets
-yarn-prod-assets: 
-	@$(COMPOSE) exec $(NODEJS) yarn build
 
 .PHONY: phpstan
 phpstan:

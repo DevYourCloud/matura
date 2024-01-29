@@ -8,6 +8,8 @@ APP_ENV=prod composer install --no-dev --optimize-autoloader
 rm -rf package
 mkdir package
 
+APP_ENV=prod php bin/console -e prod asset-map:compile
+
 tar -czf package/matura.tgz \
     --exclude=.git \
     --exclude=public/media/* \
@@ -23,7 +25,5 @@ tar -czf package/matura.tgz \
         composer.json \
         composer.lock \
         symfony.lock \
-        package.json \
-        yarn.lock \
 
 APP_ENV=dev composer install
