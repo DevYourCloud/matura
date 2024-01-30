@@ -5,6 +5,7 @@
             <thead>
                 <tr>
                 <th scope="col">#</th>
+                <th scope="col">{{ "app.admin.active_devices.name"|trans }}</th>
                 <th scope="col">{{ "app.admin.active_devices.server"|trans }}</th>
                 <th scope="col">{{ "app.admin.active_devices.user"|trans }}</th>
                 <th scope="col">{{ "app.admin.active_devices.access_date"|trans }}</th>
@@ -16,6 +17,7 @@
             {% for key, device in lastActiveDevices %}
                 <tr>
                 <th scope="row">{{ key + 1 }}</th>
+                <td>{{ device.name }}</td>
                 <td>{{ device.server.name }}</td>
                 <td>{{ device.server.user.email }}</td>
                 <td>{{ device.lastAccessed|date('d/m/y h:i:s') }}</td>

@@ -11,6 +11,7 @@ app:
       how_to_get_code: The first time you access an app, you will be prompted a authentication code
       validate: Accept
     active_devices:
+      name: Name
       server: Server name
       user: User
       ip: IP

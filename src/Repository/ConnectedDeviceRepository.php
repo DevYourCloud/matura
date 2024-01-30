@@ -31,6 +31,7 @@ class ConnectedDeviceRepository extends ServiceEntityRepository implements Conne
     {
         return $this->createQueryBuilder('c')
             ->where('c.lastAccessed is not NULL')
+            ->andWhere('c.active = 1')
             ->orderBy('c.lastAccessed', 'DESC')
             ->setMaxResults(10)
             ->getQuery()->getResult()
