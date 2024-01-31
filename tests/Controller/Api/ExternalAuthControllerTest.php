@@ -4,6 +4,7 @@ namespace App\Tests\Controller\Api;
 
 use App\DataFixtures\DeviceAuthorizedFixture;
 use App\DataFixtures\DeviceCanBeAddedFixture;
+use App\DataFixtures\DeviceDisabledFixture;
 use App\DataFixtures\DeviceNotAuthorizedFixture;
 use App\Entity\ConnectedDevice;
 use App\Entity\Server;
@@ -132,6 +133,26 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 
         // Then
         self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+    }
+
+    public function testConnectedDeviceNotGranted(): void
+    {
+        // Given
+        $fixture = new DeviceDisabledFixture();
+        $this->addFixture($fixture);
+        $this->executeFixtures();
+
+        /** @var Server $server */
+        $server = $fixture->getReference(DeviceDisabledFixture::SERVER_REFERENCE, Server::class);
+
+        $connectedDevice = $fixture->getReference(DeviceDisabledFixture::DISABLED_DEVICE_REFERENCE, ConnectedDevice::class);
+        $token = $this->encryptionService->createTrustedDeviceToken($connectedDevice);
+
+        // When
+        $this->request($server->getHost()->getDomain(), '/', '127.0.0.1', $token);
+        $crawler = $this->client->getCrawler();
+
+        self::assertFalse($crawler->matches('.device-code'));
     }
 
     private function request(string $host, string $uri, string $ip, string $token = null): Response

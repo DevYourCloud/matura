@@ -18,7 +18,7 @@
             </hgroup>
 
             <div class="text-center">
-                {% if device is not null %}
+                {% if device is not null and isNewDevice %}
                     <p>{{ 'app.front.unauthorize.enter_code'|trans }}</p>
                     <kbd class="device-code">
                         {{ device.accessCode }}
