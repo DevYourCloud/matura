@@ -112,13 +112,17 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         self::assertNotEmpty($cookie->getValue());
 
         // When
-        $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1', $cookie->getValue());
+        $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1', $cookie->getValue(), true);
 
         // Then
         self::assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        $crawler = $this->client->getCrawler();
+        $accessCode = $crawler->filter('.device-code')->text();
+        self::assertEquals($connectedDevice->getAccessCode(), $accessCode);
 
         // When
         $connectedDevice = $this->connectedDeviceManager->validateAccessCode($connectedDevice->getAccessCode());
+        $response = $this->request($server->getHost()->getDomain(), '/', '127.0.0.1', $cookie->getValue(), true);
 
         // Then
         self::assertTrue($connectedDevice->isActive());
@@ -155,7 +159,7 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         self::assertFalse($crawler->matches('.device-code'));
     }
 
-    private function request(string $host, string $uri, string $ip, string $token = null): Response
+    private function request(string $host, string $uri, string $ip, ?string $token = null, bool $encoded = false): Response
     {
         $params = [
             'HTTP_X-FORWARDED-METHOD' => 'GET',
@@ -167,7 +171,7 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
 
         if ($token) {
             $this->client->getCookieJar()->set(
-                new BrowserKitCookie($this->trustedCookieName, \urlencode($token), (string) strtotime('+1 day'))
+                new BrowserKitCookie($this->trustedCookieName, $encoded ? $token : \urlencode($token), (string) strtotime('+1 day'))
             );
         }
 

@@ -21,7 +21,7 @@ class ExternalAuthController extends AbstractController
             $this->renderView('security/unauthorized_access.html.twig', [
                 'device' => $device,
                 'appHost' => $appHost,
-                'isNewDevice' => $appContext->createTrustedCookie(),
+                'displayAccessCode' => (null !== $device && null !== $device->getAccessCode()),
             ]),
             Response::HTTP_UNAUTHORIZED
         );
