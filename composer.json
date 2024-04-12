@@ -9,7 +9,7 @@
         "ext-iconv": "*",
         "doctrine/doctrine-bundle": "^2.9",
         "doctrine/doctrine-migrations-bundle": "^3.2",
-        "doctrine/orm": "^2.14",
+        "doctrine/orm": "^3.0",
         "easycorp/easyadmin-bundle": "^4.0",
         "lexik/jwt-authentication-bundle": "^2.18",
         "stof/doctrine-extensions-bundle": "^1.7",
