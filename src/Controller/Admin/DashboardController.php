@@ -37,8 +37,8 @@ class DashboardController extends AbstractDashboardController
         $form = $this->createForm(AccessCodeFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $accessCode = (string) $form->get(AccessCodeFormType::FIELD_CODE)->getData();
-            $deviceName = (string) $form->get(AccessCodeFormType::FIELD_NAME)->getData();
+            $accessCode = \ltrim(trim((string) $form->get(AccessCodeFormType::FIELD_CODE)->getData()));
+            $deviceName = \ltrim(trim((string) $form->get(AccessCodeFormType::FIELD_NAME)->getData()));
 
             $device = $this->connectedDeviceManager->validateAccessCode($accessCode);
 
@@ -50,7 +50,7 @@ class DashboardController extends AbstractDashboardController
                 $this->em->flush();
                 $this->addFlash('success', 'Device validated');
             } else {
-                $this->addFlash('warning', 'Unable to Device not found');
+                $this->addFlash('warning', 'Device not found');
             }
         }
 

@@ -20,11 +20,11 @@ Color theme : https://colorhunt.co/palette/0000001500503f0071fb2576
 }
 
 
-body {
+/* body {
   background-image: url("../images/background.svg");
   background-size: 50%;
   background-repeat: repeat;
-}
+} */
 
 /* Grid */
 body > main {
@@ -98,7 +98,7 @@ body > main {
   article.login .hero-img {
     display: none;
     background-color: #374956;
-    background-image: url("../images/login-image.jpg");
+    background-image: url("../images/robotic_city.png");
     background-position: center;
     background-size: cover;
 
@@ -118,6 +118,10 @@ body > main {
 
 .text-center {
     text-align: center;
+}
+
+.login {
+  border: 1px solid #c01a1c33;
 }
 
 form .error {

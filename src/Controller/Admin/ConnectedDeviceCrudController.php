@@ -58,6 +58,7 @@ class ConnectedDeviceCrudController extends AbstractCrudController
             TextField::new('ip'),
             TextField::new('userAgent'),
             TextField::new('accessCode')->setDisabled()->setRequired(false)->onlyWhenUpdating(),
+            TextField::new('accessCode')->onlyOnDetail(),
             DateTimeField::new('accessCodeGeneratedAt')->setDisabled()->setRequired(false)->onlyWhenUpdating(),
             TextField::new('hash')
                 ->setDisabled(true)
