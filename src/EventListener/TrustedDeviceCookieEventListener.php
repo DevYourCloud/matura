@@ -3,9 +3,7 @@
 namespace App\EventListener;
 
 use App\Context\AppContext;
-use App\Factory\ConnectedDeviceFactory;
 use App\Service\EncryptionService;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
