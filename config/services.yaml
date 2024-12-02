@@ -1,5 +1,9 @@
+imports:
+  - { resource: name_generator.yaml }
+
 parameters:
   trusted_device_version: 1
+  cookie_lifetime: 365 #days
   token_lifetime: 30 #days
   access_code_duration: "PT15M"
   encryption_key: "%env(APP_ENCRYPTION_KEY)%"
@@ -15,6 +19,7 @@ services:
       $trustedDeviceCookieName: "%trusted_device_cookie_name%"
       $trustedDeviceHeaderName: "%trusted_device_header_name%"
       $appHost: "%env(APP_HOST)%"
+      $cookieLifetime: "%cookie_lifetime%"
 
   App\:
     resource: "../src/"
@@ -31,6 +36,7 @@ services:
       $tokenLifetime: "%token_lifetime%"
       $secretKey: "%encryption_key%"
 
-  App\EventListener\OnKernelResponseRefreshCookie:
+  App\Service\NameGeneratorService:
     arguments:
-      $tokenLifetime: "%token_lifetime%"
+      $names: "%name_generator%"
+      $adjectives: "%adjective_generator%"

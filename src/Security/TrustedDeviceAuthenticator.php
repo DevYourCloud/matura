@@ -76,6 +76,10 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('[COOKIE AUTH] No device found');
         }
 
+        if (!$this->connectedDeviceManager->updateDeviceValidity($connectedDevice)) {
+            throw new CustomUserMessageAuthenticationException('[COOKIE AUTH] device token needs to be revalidated');
+        }
+
         $server = $connectedDevice->getServer();
 
         $this->appContext->setConnectedDevice($connectedDevice);

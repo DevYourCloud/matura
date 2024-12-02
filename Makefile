@@ -56,7 +56,7 @@ exec-nodejs:
 .PHONY: mysql
 mysql:
 	$(eval db_name = $(shell $(COMPOSE) exec $(DATABASE) bash -c 'echo $$MYSQL_DATABASE'))
-	@$(COMPOSE) exec $(DATABASE) mysql -u root -proot $(db_name)
+	@$(COMPOSE) exec $(DATABASE) mariadb -u root -proot $(db_name)
 
 .PHONY: install
 install:
@@ -65,16 +65,8 @@ install:
 	@$(COMPOSE) exec --user=$(user) $(WEB) bin/console d:s:u --force
 #	@$(COMPOSE) exec --user=$(user) $(WEB) bin/console d:m:m
 	@$(COMPOSE) exec --user=$(user) $(WEB) bin/console lexik:jwt:generate-keypair --overwrite
-	@$(COMPOSE) exec --user=$(user) $(WEB) php bin/console --env=test doctrine:database:create
+	@$(COMPOSE) exec --user=$(user) $(WEB) php bin/console --env=test doctrine:database:create --if-not-exists
 	@$(COMPOSE) exec --user=$(user) $(WEB) php bin/console --env=test doctrine:schema:create
-
-.PHONY: watch
-watch:
-	$(COMPOSE) exec $(NODEJS) $(NODEJS_EXEC) -c 'yarn watch'
-
-.PHONY: batch
-batch: 
-	@$(COMPOSE) exec --user=$(user) $(WEB) watch -n 60 php ./bin/console app:u > batch.log
 
 .PHONY: package
 package:
@@ -87,10 +79,6 @@ phpstan:
 .PHONY: phpunit
 phpunit:
 	@$(COMPOSE) exec --user=$(user) -e APP_ENV=test $(WEB) php bin/phpunit
-
-.PHONY: fixture
-fixture:
-	@$(COMPOSE) exec --user=$(user) $(WEB) php ./bin/console doctrine:fixtures:load
 
 .PHONY: test
 test: phpstan phpunit

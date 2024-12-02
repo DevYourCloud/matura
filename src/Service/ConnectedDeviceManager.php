@@ -5,14 +5,16 @@ namespace App\Service;
 use App\Entity\ConnectedDevice;
 use App\Exception\DecodingTokenFailed;
 use App\Repository\ConnectedDeviceRepositoryInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class ConnectedDeviceManager
 {
     public function __construct(
+        private EntityManagerInterface $em,
         private EncryptionService $encryptionService,
         private ConnectedDeviceRepositoryInterface $connectedDeviceRepository,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -41,5 +43,30 @@ class ConnectedDeviceManager
         }
 
         return null;
+    }
+
+    public function updateDeviceValidity(ConnectedDevice $device): bool
+    {
+        $isTokenValid = $this->checkDeviceValidity($device);
+        if ($isTokenValid) {
+            $device->setLastAccessed(new \DateTime('now'));
+        } else {
+            $device->setAccessCode($this->encryptionService->createAccessCode());
+            $device->setActive(false);
+        }
+
+        $this->em->flush();
+
+        return $isTokenValid;
+    }
+
+    public function checkDeviceValidity(ConnectedDevice $device): bool
+    {
+        $now = new \DateTime('now');
+        $now->setTime(0, 0);
+
+        $validityDate = $this->encryptionService->getTokenExpirationDate($device->getLastAccessed());
+
+        return $validityDate >= $now;
     }
 }

@@ -15,6 +15,7 @@ class TrustedDeviceCookieEventListener
         private AppContext $appContext,
         private EncryptionService $encryptionService,
         private string $trustedDeviceCookieName,
+        private string $cookieLifetime
     ) {
     }
 
@@ -29,11 +30,14 @@ class TrustedDeviceCookieEventListener
 
         $token = $this->encryptionService->createTrustedDeviceToken($connectedDevice);
 
+        $expirationDate = new \DateTime('now');
+        $expirationDate->add(new \DateInterval('P'.$this->cookieLifetime.'D'));
+
         // Set the cookie
         $cookie = new Cookie(
             $this->trustedDeviceCookieName,
             \urlencode($token),
-            $this->encryptionService->getTokenExpirationDate(),
+            $expirationDate,
             '/',
             $this->appContext->getServer()->getHost()->getDomain(),
             true,

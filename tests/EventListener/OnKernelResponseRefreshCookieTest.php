@@ -5,6 +5,7 @@ namespace App\Tests\EventListener;
 use App\EventListener\OnKernelResponseRefreshCookie;
 use App\Service\EncryptionService;
 use App\Tests\Builder\ServiceBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,9 @@ class OnKernelResponseRefreshCookieTest extends TestCase
 
     public function testRefreshCookie(): void
     {
+        /** @var HttpKernelInterface|MockObject $httpKernel */
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+
         $cookieExpirationDate = new \DateTime('now');
         $cookieExpirationDate->add(new \DateInterval('P10D'));
 
@@ -49,7 +53,7 @@ class OnKernelResponseRefreshCookieTest extends TestCase
         $response = new Response();
 
         $eventMock = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            $httpKernel,
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -67,15 +71,18 @@ class OnKernelResponseRefreshCookieTest extends TestCase
         self::assertEquals($existingCookie->getPath(), $responseCookie->getPath());
 
         $expiration = new \DateTime();
-        $expiration->setTimestamp($responseCookie->getExpiresTime());
+        $expiration->add(new \DateInterval('P'.$responseCookie->getExpiresTime().'D'));
         self::assertEquals(
-            $this->encryptionService->getTokenExpirationDate()->format('Y-m-d'),
+            $this->encryptionService->getTokenExpirationDate(new \DateTime('now'))->format('Y-m-d'),
             $expiration->format('Y-m-d')
         );
     }
 
     public function testCookieNotRefreshed(): void
     {
+        /** @var HttpKernelInterface|MockObject $httpKernel */
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+
         $cookieExpirationDate = new \DateTime('now');
         $cookieExpirationDate->add(new \DateInterval('P'.$this->expirationDelay.'D'));
 
@@ -100,7 +107,7 @@ class OnKernelResponseRefreshCookieTest extends TestCase
         $response = new Response();
 
         $eventMock = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            $httpKernel,
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response

@@ -13,7 +13,7 @@ class OnKernelResponseRefreshCookie
     public function __construct(
         private EncryptionService $encryptionService,
         private string $trustedDeviceCookieName,
-        private int $tokenLifetime,
+        private int $cookieLifetime,
     ) {
     }
 
@@ -28,7 +28,7 @@ class OnKernelResponseRefreshCookie
 
         $cookie = Cookie::fromString($cookie);
 
-        $expirationLifetime = ((int) $this->tokenLifetime) - 1;
+        $expirationLifetime = ((int) $this->cookieLifetime / 2);
 
         $expirationDate = new \DateTime();
         $expirationDate->setTimestamp($cookie->getExpiresTime());
@@ -44,7 +44,7 @@ class OnKernelResponseRefreshCookie
             $refreshedCookie = new Cookie(
                 $this->trustedDeviceCookieName,
                 $cookie->getValue(),
-                $this->encryptionService->getTokenExpirationDate(),
+                $this->cookieLifetime,
                 '/',
                 $cookie->getDomain(),
                 true,

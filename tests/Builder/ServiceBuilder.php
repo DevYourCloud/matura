@@ -23,12 +23,14 @@ class ServiceBuilder
     public static function getTrustedDeviceCookieListener(
         AppContext $appContext,
         EncryptionService $encryptionService,
-        string $trustedCookieName = '_truster_device'
+        string $trustedCookieName = '_truster_device',
+        int $cookieLifetime = 30
     ): TrustedDeviceCookieEventListener {
         return new TrustedDeviceCookieEventListener(
             $appContext,
             $encryptionService,
-            $trustedCookieName
+            $trustedCookieName,
+            $cookieLifetime
         );
     }
 
@@ -44,10 +46,11 @@ class ServiceBuilder
     }
 
     public static function getConnectedDeviceManager(
+        EntityManagerInterface $em,
         ConnectedDeviceRepositoryInterface $connectedDeviceRepository,
         EncryptionService $encryptionService
     ): ConnectedDeviceManager {
-        return new ConnectedDeviceManager($encryptionService, $connectedDeviceRepository, new NullLogger());
+        return new ConnectedDeviceManager($em, $encryptionService, $connectedDeviceRepository, new NullLogger());
     }
 
     public static function getConnectedDeviceFactory(EncryptionService $encryptionService, EntityManagerInterface $em): ConnectedDeviceFactory

@@ -94,11 +94,11 @@ class EncryptionService
         return $code;
     }
 
-    public function getTokenExpirationDate(): \DateTime
+    public function getTokenExpirationDate(\DateTime $date): \DateTime
     {
-        $now = new \DateTime('now');
+        $date = clone $date;
 
-        return $now->add(new \DateInterval('P'.$this->tokenLifetime.'D'));
+        return $date->add(new \DateInterval('P'.$this->tokenLifetime.'D'));
     }
 
     private function getSecretKey(): string

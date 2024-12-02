@@ -13,6 +13,7 @@ use App\Tests\Builder\ServiceBuilder;
 use App\Tests\Builder\UserEntityBuilder;
 use App\Tests\Mock\HostRepositoryMock;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -28,12 +29,15 @@ class OnKernelRequestCreateDeviceTest extends TestCase
 
     public function setUp(): void
     {
+        /** @var EntityManagerInterface|MockObject $entityManager */
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
         $this->hostRepository = new HostRepositoryMock();
         $this->appContext = ServiceBuilder::getAppContext($this->hostRepository);
         $encryptionService = ServiceBuilder::getEncryptionService();
         $factory = ServiceBuilder::getConnectedDeviceFactory(
             $encryptionService,
-            $this->createMock(EntityManagerInterface::class)
+            $entityManager
         );
 
         $this->listener = ServiceBuilder::getOnKernelRequestCreateDeviceListener($this->appContext, $factory);
@@ -41,6 +45,9 @@ class OnKernelRequestCreateDeviceTest extends TestCase
 
     public function testDeviceCreation(): void
     {
+        /** @var HttpKernelInterface|MockObject $httpKernel */
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+
         $domain = 'test.example.com';
 
         $user = UserEntityBuilder::create()->build();
@@ -72,7 +79,7 @@ class OnKernelRequestCreateDeviceTest extends TestCase
         $this->appContext->setCreateTrustedCookie(true);
 
         $this->listener->__invoke(new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            $httpKernel,
             new Request(),
             1,
         ));
@@ -83,6 +90,9 @@ class OnKernelRequestCreateDeviceTest extends TestCase
 
     public function testNoDeviceCreationWhenPairingDisabled(): void
     {
+        /** @var HttpKernelInterface|MockObject $httpKernel */
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+
         $domain = 'test.example.com';
 
         $user = UserEntityBuilder::create()->build();
@@ -114,7 +124,7 @@ class OnKernelRequestCreateDeviceTest extends TestCase
         $this->appContext->setCreateTrustedCookie(true);
 
         $this->listener->__invoke(new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            $httpKernel,
             new Request(),
             1,
         ));
@@ -124,10 +134,13 @@ class OnKernelRequestCreateDeviceTest extends TestCase
 
     public function testNoDeviceCreationWhenNoCookieCreation(): void
     {
+        /** @var HttpKernelInterface|MockObject $httpKernel */
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+
         $this->appContext->setCreateTrustedCookie(false);
 
         $this->listener->__invoke(new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            $httpKernel,
             new Request(),
             1,
         ));
@@ -137,6 +150,9 @@ class OnKernelRequestCreateDeviceTest extends TestCase
 
     public function testNoDeviceCreationWhenHavingADevice(): void
     {
+        /** @var HttpKernelInterface|MockObject $httpKernel */
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+
         $initialHash = 'TEST';
         $connectedDevice = new ConnectedDevice();
         $connectedDevice->setHash($initialHash);
@@ -145,7 +161,7 @@ class OnKernelRequestCreateDeviceTest extends TestCase
         $this->appContext->setConnectedDevice($connectedDevice);
 
         $this->listener->__invoke(new RequestEvent(
-            $this->createMock(HttpKernelInterface::class),
+            $httpKernel,
             new Request(),
             1,
         ));

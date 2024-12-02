@@ -75,6 +75,7 @@ class ExternalAuthControllerTest extends FixtureAwareWebTestCase
         // Then
         $this->em->refresh($server);
         self::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
         self::assertEquals(1, count($server->getConnectedDevices()));
     }
 

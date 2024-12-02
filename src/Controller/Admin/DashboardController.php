@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Form\Admin\AccessCodeFormType;
 use App\Repository\ConnectedDeviceRepository;
 use App\Service\ConnectedDeviceManager;
+use App\Service\NameGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -25,7 +26,8 @@ class DashboardController extends AbstractDashboardController
         private RequestStack $requestStack,
         private ConnectedDeviceManager $connectedDeviceManager,
         private ConnectedDeviceRepository $connectedDeviceRepository,
-        // private TranslatorInterface $translator
+        private NameGeneratorService $nameGeneratorService,
+        private TranslatorInterface $translator
     ) {
     }
 
@@ -38,19 +40,18 @@ class DashboardController extends AbstractDashboardController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $accessCode = \ltrim(trim((string) $form->get(AccessCodeFormType::FIELD_CODE)->getData()));
-            $deviceName = \ltrim(trim((string) $form->get(AccessCodeFormType::FIELD_NAME)->getData()));
 
             $device = $this->connectedDeviceManager->validateAccessCode($accessCode);
 
             if ($device instanceof ConnectedDevice) {
-                if ('' !== $deviceName && null !== $deviceName) {
-                    $device->setName($deviceName);
+                if (null === $device->getName()) {
+                    $device->setName($this->nameGeneratorService->getRandomName());
                 }
 
                 $this->em->flush();
-                $this->addFlash('success', 'Device validated');
+                $this->addFlash('success', $this->translator->trans('app.admin.flash.device_validated', ['%name%' => $device->getName()]));
             } else {
-                $this->addFlash('warning', 'Device not found');
+                $this->addFlash('warning', $this->translator->trans('app.admin.flash.device_not_found'));
             }
         }
 

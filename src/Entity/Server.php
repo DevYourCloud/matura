@@ -138,6 +138,7 @@ class Server
         return $this;
     }
 
+    /** @return Application[] */
     public function getApps(): Collection
     {
         return $this->apps;

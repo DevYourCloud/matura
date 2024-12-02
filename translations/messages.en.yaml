@@ -17,6 +17,9 @@ app:
       ip: IP
       user_agent: User Agent
       access_date: Last access date
+    flash:
+      device_validated: Congrats! %name% had been whitelisted
+      device_not_found: The device was not found.
 
   front:
     login:

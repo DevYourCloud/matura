@@ -13,7 +13,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Webmozart\Assert\Assert;
 
 class ServerCrudController extends AbstractCrudController
 {
@@ -54,12 +53,28 @@ class ServerCrudController extends AbstractCrudController
 
     public function persistEntity(EntityManagerInterface $entityManager, mixed $entityInstance): void
     {
-        Assert::isInstanceOf($entityInstance, Server::class);
+        if (!$entityInstance instanceof Server) {
+            throw new \LogicException('Invalid type provided');
+        }
 
         $user = $this->getUser();
         $entityInstance->setUser($user);
 
         parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Server) {
+            throw new \LogicException('Invalid type provided');
+        }
+        parent::updateEntity($entityManager, $entityInstance);
+
+        foreach ($entityInstance->getApps() as $app) {
+            $app->createHost();
+        }
+
+        $entityManager->flush();
     }
 
     public function configureActions(Actions $actions): Actions

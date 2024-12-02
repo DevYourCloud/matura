@@ -1,0 +1,46 @@
+parameters:
+  name_generator:
+    - R2-D2
+    - C-3PO
+    - BB-8
+    - Chopper
+    - Probe Droid
+    - Wall-E
+    - Eve
+    - Megatron
+    - Optimus Prime
+    - Bumblebee
+    - RoboCop
+    - HAL 9000
+    - Jarvis
+    - Ultron
+    - Sonny
+    - TARS
+    - Toaster
+
+  adjective_generator:
+    - Cyberneticist
+    - Nanoengineer
+    - Hydroponicist
+    - Terraformer
+    - Biosynthesist
+    - Quantumologist
+    - Teletransporter
+    - Genomedesigner
+    - Psychometrician
+    - Astrominer
+    - Exobiologist
+    - Robopsychologist
+    - Augmentologist
+    - Bionicist
+    - Exolinguist
+    - Holographer
+    - Transhumanist
+    - Androidmaker
+    - Chronotechnician
+    - Aerogelographer
+    - Cryonicspecialist
+    - Xenobiologist
+    - Antennatrician
+    - Algorithymist
+    - Architect

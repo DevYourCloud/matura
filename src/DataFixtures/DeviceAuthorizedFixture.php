@@ -59,6 +59,7 @@ class DeviceAuthorizedFixture extends Fixture
             ->setIp('100.111.222.333')
             ->setUserAgent('Firefox')
             ->setHash('HASH_TEST')
+            ->setLastAccessed(new \DateTime('yesterday'))
             ->setActive(true)
         ;
 

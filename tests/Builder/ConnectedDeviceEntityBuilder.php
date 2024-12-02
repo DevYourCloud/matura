@@ -13,6 +13,7 @@ class ConnectedDeviceEntityBuilder
     private ?string $accessCode = null;
     private ?bool $active = false;
     private ?User $user = null;
+    private ?\DateTime $lastAccessedDate = null;
 
     public static function create(): self
     {
@@ -39,8 +40,12 @@ class ConnectedDeviceEntityBuilder
             $connectedDevice->setUser($this->user);
         }
 
+        if (null !== $this->lastAccessedDate) {
+            $connectedDevice->setLastAccessed($this->lastAccessedDate);
+        }
+
         $connectedDevice
-            ->setActive(false)
+            ->setActive($this->active)
             ->setIp('XX.YY.ZZ.LOL')
             ->setUserAgent('UserAgent')
             ->setCreatedAt(new \DateTime('now'))
@@ -82,6 +87,13 @@ class ConnectedDeviceEntityBuilder
     public function withUser(User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function withLastAccessedDate(\DateTime $date): self
+    {
+        $this->lastAccessedDate = $date;
 
         return $this;
     }
