@@ -27,7 +27,7 @@ class DashboardController extends AbstractDashboardController
         private ConnectedDeviceManager $connectedDeviceManager,
         private ConnectedDeviceRepository $connectedDeviceRepository,
         private NameGeneratorService $nameGeneratorService,
-        private TranslatorInterface $translator
+        private TranslatorInterface $translator,
     ) {
     }
 
