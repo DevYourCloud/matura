@@ -60,6 +60,7 @@ mysql:
 
 .PHONY: install
 install:
+	$(eval user ?= www-data)
 	@$(COMPOSE) exec --user=$(user) $(WEB) composer install
 	@$(COMPOSE) exec --user=$(user) $(WEB) bin/console d:d:c --if-not-exists
 	@$(COMPOSE) exec --user=$(user) $(WEB) bin/console d:s:u --force
@@ -70,19 +71,23 @@ install:
 
 .PHONY: package
 package:
+	$(eval user ?= www-data)
 	@$(COMPOSE) exec --user=$(user) $(WEB) ./bin/package
 
 .PHONY: phpstan
 phpstan:
+	$(eval user ?= www-data)
 	@$(COMPOSE) exec --user=$(user) $(WEB) vendor/bin/phpstan analyse src tests --memory-limit=1G
 
 .PHONY: phpcs
 phpcs:
+	$(eval user ?= www-data)
 	@$(COMPOSE) exec --user=$(user) $(WEB) vendor/bin/php-cs-fixer fix
 
 
 .PHONY: phpunit
 phpunit:
+	$(eval user ?= www-data)
 	@$(COMPOSE) exec --user=$(user) -e APP_ENV=test $(WEB) php bin/phpunit
 
 .PHONY: test
