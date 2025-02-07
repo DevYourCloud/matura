@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'access_token')]
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
+#[ORM\UniqueConstraint(name: "uniq_access_token", columns: ["access_token"])]
 class AccessToken
 {
     use TimeableTrait;
