@@ -3,12 +3,15 @@
 namespace App\Service;
 
 use App\Entity\ConnectedDevice;
+use Symfony\Component\String\ByteString;
 
 class EncryptionService
 {
     public const CRYPT_ALGO = 'aes-256-cbc';
     public const ENCRYPTED_TAG = '-ENCR';
     public const TOKEN_VALUE_SEPARATOR = '-';
+
+    public const ACCESS_TOKEN_LENGTH = 32;
 
     public function __construct(
         private string $salt,
@@ -104,5 +107,11 @@ class EncryptionService
     private function getSecretKey(): string
     {
         return base64_decode($this->secretKey);
+    }
+
+    // @todo nick test it
+    public function createAccessToken(): string
+    {
+        return ByteString::fromRandom(self::ACCESS_TOKEN_LENGTH)->toString();
     }
 }

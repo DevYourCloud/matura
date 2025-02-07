@@ -7,8 +7,9 @@ parameters:
   token_lifetime: 30 #days
   access_code_duration: "PT15M"
   encryption_key: "%env(APP_ENCRYPTION_KEY)%"
-  trusted_device_cookie_name: "_trusted_device"
-  trusted_device_header_name: "x-trusted-device"
+  trusted_device_cookie_name: "%env(APP_TRUSTED_DEVICE_COOKIE)%"
+  trusted_device_header_name: "%env(APP_TRUSTED_DEVICE_HEADER)%" #todo
+  access_token_parameter_name: "%env(APP_ACCESS_TOKEN_PARAMETER)%"
 
 services:
   _defaults:
@@ -18,6 +19,7 @@ services:
     bind:
       $trustedDeviceCookieName: "%trusted_device_cookie_name%"
       $trustedDeviceHeaderName: "%trusted_device_header_name%"
+      $accessTokenParameterName: "%access_token_parameter_name%"
       $appHost: "%env(APP_HOST)%"
       $cookieLifetime: "%cookie_lifetime%"
 

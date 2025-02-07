@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\AccessToken;
 use App\Entity\Application;
 use App\Entity\ConnectedDevice;
 use App\Entity\Server;
@@ -80,6 +81,7 @@ class DashboardController extends AbstractDashboardController
             MenuItem::linkToCrud('Apps', 'fa fa-shapes', Application::class),
             MenuItem::linkToCrud('Connected Devices', 'fa fa-computer', ConnectedDevice::class),
             MenuItem::linkToCrud('User', 'fa fa-user', User::class),
+            MenuItem::linkToCrud('Access Token', 'fa fa-key', AccessToken::class),
         ];
     }
 }

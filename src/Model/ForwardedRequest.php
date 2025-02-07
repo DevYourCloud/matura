@@ -14,7 +14,7 @@ class ForwardedRequest
     public const HEADER_USER_AGENT = 'user-agent';
 
     public function __construct(
-        private Request $request
+        private Request $request,
     ) {
     }
 

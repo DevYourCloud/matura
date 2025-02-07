@@ -41,11 +41,16 @@ class Server
     #[ORM\OneToMany(targetEntity: ConnectedDevice::class, mappedBy: 'server', cascade: ['persist', 'remove'])]
     private Collection $connectedDevices;
 
+    #[ORM\OneToMany(targetEntity: AccessToken::class, mappedBy: 'server', cascade: ['persist', 'remove'])]
+    private Collection $tokens;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->apps = new ArrayCollection();
         $this->connectedDevices = new ArrayCollection();
+        $this->tokens = new ArrayCollection();
+        $this->active = true;
     }
 
     public function __toString(): string
@@ -138,7 +143,7 @@ class Server
         return $this;
     }
 
-    /** @return Application[] */
+    /** @return Collection<int, Application> */
     public function getApps(): Collection
     {
         return $this->apps;
@@ -210,6 +215,18 @@ class Server
     public function setPairing(bool $pairing): self
     {
         $this->pairing = $pairing;
+
+        return $this;
+    }
+
+    public function getTokens(): Collection
+    {
+        return $this->tokens;
+    }
+
+    public function setTokens(Collection $tokens): self
+    {
+        $this->tokens = $tokens;
 
         return $this;
     }

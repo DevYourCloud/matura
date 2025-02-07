@@ -15,7 +15,7 @@ class TrustedDeviceCookieEventListener
         private AppContext $appContext,
         private EncryptionService $encryptionService,
         private string $trustedDeviceCookieName,
-        private string $cookieLifetime
+        private string $cookieLifetime,
     ) {
     }
 

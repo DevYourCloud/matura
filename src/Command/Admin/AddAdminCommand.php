@@ -37,7 +37,7 @@ class AddAdminCommand extends Command
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
         private AdminCreationCommandValidator $validator,
-        private UserRepository $users
+        private UserRepository $users,
     ) {
         parent::__construct();
     }

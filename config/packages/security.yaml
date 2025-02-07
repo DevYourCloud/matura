@@ -31,6 +31,7 @@ security:
       stateless: true
       custom_authenticators:
         - App\Security\TrustedDeviceAuthenticator
+        - App\Security\AccessTokenAuthenticator
 
     main:
       lazy: true

@@ -12,7 +12,7 @@ class ConnectedDeviceFactory
 {
     public function __construct(
         private EncryptionService $encryptionService,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
     ) {
     }
 

@@ -41,14 +41,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string')]
     private string $password;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $isVerified = false;
+
     #[ORM\OneToMany(targetEntity: Server::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $servers;
 
     #[ORM\OneToMany(targetEntity: ConnectedDevice::class, mappedBy: 'user')]
     private Collection $connectedDevices;
-
-    #[ORM\Column(type: 'boolean')]
-    private bool $isVerified = false;
 
     private ?string $plainPassword = null;
 

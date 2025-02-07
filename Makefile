@@ -76,6 +76,11 @@ package:
 phpstan:
 	@$(COMPOSE) exec --user=$(user) $(WEB) vendor/bin/phpstan analyse src tests --memory-limit=1G
 
+.PHONY: phpcs
+phpcs:
+	@$(COMPOSE) exec --user=$(user) $(WEB) vendor/bin/php-cs-fixer fix
+
+
 .PHONY: phpunit
 phpunit:
 	@$(COMPOSE) exec --user=$(user) -e APP_ENV=test $(WEB) php bin/phpunit

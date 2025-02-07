@@ -23,6 +23,6 @@ return static function (RectorConfig $rectorConfig): void {
 
     $rectorConfig->removeUnusedImports(true);
     $rectorConfig->skip([
-        FlipTypeControlToUseExclusiveTypeRector::class
+        FlipTypeControlToUseExclusiveTypeRector::class,
     ]);
 };

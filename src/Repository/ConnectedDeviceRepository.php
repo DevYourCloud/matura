@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ConnectedDevice;
+use App\Entity\Server;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -36,5 +37,17 @@ class ConnectedDeviceRepository extends ServiceEntityRepository implements Conne
             ->setMaxResults(10)
             ->getQuery()->getResult()
         ;
+    }
+
+    public function removeNonPairedConnectedDevice(Server $server): bool
+    {
+        $this->createQueryBuilder('c')
+            ->delete()
+            ->where('c.active = 0')
+            ->andWhere('c.server', $server)
+            ->getQuery()->execute()
+        ;
+
+        return true;
     }
 }

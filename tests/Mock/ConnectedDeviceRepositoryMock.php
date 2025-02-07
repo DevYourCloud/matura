@@ -3,6 +3,7 @@
 namespace App\Tests\Mock;
 
 use App\Entity\ConnectedDevice;
+use App\Entity\Server;
 use App\Repository\ConnectedDeviceRepositoryInterface;
 
 class ConnectedDeviceRepositoryMock implements ConnectedDeviceRepositoryInterface
@@ -40,5 +41,10 @@ class ConnectedDeviceRepositoryMock implements ConnectedDeviceRepositoryInterfac
     public function getLastActiveDevices(): array
     {
         return $this->devices;
+    }
+
+    public function removeNonPairedConnectedDevice(Server $server): bool
+    {
+       return true;
     }
 }

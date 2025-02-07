@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ConnectedDevice;
+use App\Entity\Server;
 
 interface ConnectedDeviceRepositoryInterface
 {
@@ -14,4 +15,6 @@ interface ConnectedDeviceRepositoryInterface
      * @return ConnectedDevice[]
      */
     public function getLastActiveDevices(): array;
+
+    public function removeNonPairedConnectedDevice(Server $server): bool;
 }

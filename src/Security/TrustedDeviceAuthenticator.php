@@ -27,7 +27,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         private ConnectedDeviceManager $connectedDeviceManager,
         private AuthorizationCheckerInterface $authorizationChecker,
         private AppContext $appContext,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -51,8 +51,6 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException(sprintf('[COOKIE AUTH] Initialization failed : %s', $e->getMessage()));
         }
 
-        $server = $this->appContext->getServer();
-
         if (!$request->cookies->has($this->trustedDeviceCookieName)) {
             $this->appContext->setCreateTrustedCookie(true);
 
@@ -60,7 +58,6 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
         }
 
         $token = \urldecode($request->cookies->get($this->trustedDeviceCookieName));
-        $connectedDevice = null;
 
         try {
             $connectedDevice = $this->connectedDeviceManager->decodeAndFindConnectedDevice($token);

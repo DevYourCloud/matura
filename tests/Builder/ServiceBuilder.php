@@ -24,7 +24,7 @@ class ServiceBuilder
         AppContext $appContext,
         EncryptionService $encryptionService,
         string $trustedCookieName = '_truster_device',
-        int $cookieLifetime = 30
+        int $cookieLifetime = 30,
     ): TrustedDeviceCookieEventListener {
         return new TrustedDeviceCookieEventListener(
             $appContext,
@@ -36,7 +36,7 @@ class ServiceBuilder
 
     public static function getOnKernelRequestCreateDeviceListener(
         AppContext $appContext,
-        ConnectedDeviceFactory $connectedDeviceFactory
+        ConnectedDeviceFactory $connectedDeviceFactory,
     ): OnKernelRequestCreateDevice {
         return new OnKernelRequestCreateDevice(
             $appContext,
@@ -48,7 +48,7 @@ class ServiceBuilder
     public static function getConnectedDeviceManager(
         EntityManagerInterface $em,
         ConnectedDeviceRepositoryInterface $connectedDeviceRepository,
-        EncryptionService $encryptionService
+        EncryptionService $encryptionService,
     ): ConnectedDeviceManager {
         return new ConnectedDeviceManager($em, $encryptionService, $connectedDeviceRepository, new NullLogger());
     }

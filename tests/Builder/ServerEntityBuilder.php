@@ -11,6 +11,7 @@ class ServerEntityBuilder
     private ?Host $host = null;
     private bool $pairing = false;
     private ?User $user = null;
+    private ?bool $active = null;
 
     public static function create(): self
     {
@@ -27,6 +28,10 @@ class ServerEntityBuilder
 
         if (null !== $this->user) {
             $server->setUser($this->user);
+        }
+
+        if (null !== $this->active) {
+            $server->setActive($this->active);
         }
 
         return $server
@@ -53,6 +58,13 @@ class ServerEntityBuilder
     public function withUser(User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function withActive(bool $active): self
+    {
+        $this->active = $active;
 
         return $this;
     }

@@ -10,12 +10,6 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 
-/**
- * @method User|null find($id, $lockMode = null, $lockVersion = null)
- * @method User|null findOneBy(array $criteria, array $orderBy = null)
- * @method User[]    findAll()
- * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface, UserLoaderInterface
 {
     public function __construct(ManagerRegistry $registry)
@@ -33,11 +27,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         }
 
         $user->setPassword($newHashedPassword);
-        $this->_em->persist($user);
-        $this->_em->flush();
     }
 
-    public function loadUserByIdentifier(string $email): ?User
+    public function loadUserByIdentifier(string $identifier): ?User
     {
         $entityManager = $this->getEntityManager();
 
@@ -48,7 +40,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
                 AND u.active = 1
             '
         )
-            ->setParameter('query', $email)
+            ->setParameter('query', $identifier)
             ->getOneOrNullResult()
         ;
     }

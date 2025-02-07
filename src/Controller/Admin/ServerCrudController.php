@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Server;
 use App\Form\Admin\ConnectedDeviceFormType;
+use App\Repository\ConnectedDeviceRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -16,6 +17,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ServerCrudController extends AbstractCrudController
 {
+    public function __construct(private ConnectedDeviceRepositoryInterface $connectedDeviceRepository)
+    {
+    }
+
     public static function getEntityFqcn(): string
     {
         return Server::class;
@@ -68,10 +73,15 @@ class ServerCrudController extends AbstractCrudController
         if (!$entityInstance instanceof Server) {
             throw new \LogicException('Invalid type provided');
         }
+
         parent::updateEntity($entityManager, $entityInstance);
 
         foreach ($entityInstance->getApps() as $app) {
             $app->createHost();
+        }
+
+        if (!$entityInstance->isPairing()) {
+            $this->connectedDeviceRepository->removeNonPairedConnectedDevice($entityInstance);
         }
 
         $entityManager->flush();

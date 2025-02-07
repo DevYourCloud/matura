@@ -15,22 +15,27 @@ class Application
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    protected ?int $id;
+    protected ?int $id = null;
 
     #[ORM\Column(type: 'string')]
-    protected ?string $name;
+    protected ?string $name = null;
 
     #[ORM\Column(type: 'string', nullable: false)]
-    protected ?string $alias;
+    protected ?string $alias = null;
 
     #[ORM\Column(type: 'integer')]
-    protected ?int $port;
+    protected ?int $port = null;
 
     #[ORM\ManyToOne(targetEntity: Server::class, inversedBy: 'apps')]
     protected ?Server $server = null;
 
     #[ORM\OneToOne(targetEntity: Host::class, mappedBy: 'app', cascade: ['persist', 'remove'])]
     protected ?Host $host = null;
+
+    public function __construct()
+    {
+        $this->active = true;
+    }
 
     public function __toString(): string
     {

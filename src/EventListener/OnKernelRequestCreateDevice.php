@@ -15,7 +15,7 @@ class OnKernelRequestCreateDevice
     public function __construct(
         private AppContext $appContext,
         private ConnectedDeviceFactory $connectedDeviceFactory,
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
     ) {
     }
 
