@@ -32,6 +32,10 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
+        if ($this->appContext->isAccessGranted()) {
+            return false;
+        }
+
         $accessTokenParams = null !== ForwardedRequest::searchAccessTokenInUri(
             $request->headers->get(ForwardedRequest::HEADER_URI),
             $this->accessTokenParameterName
@@ -72,8 +76,6 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
 
         if (!$request->cookies->has($this->accessTokenParameterName)) {
             $this->appContext->setCreateAccessToken(true);
-
-            // throw new CustomUserMessageAuthenticationException(sprintf('[ACCESS TOKEN] CREATING TOKEN COOKIE'));
         }
 
         return new SelfValidatingPassport(new UserBadge($accessTokenEntity->getServer()->getUser()->getUserIdentifier()));
