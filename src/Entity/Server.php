@@ -230,4 +230,14 @@ class Server
 
         return $this;
     }
+
+    public function setActive(bool $active): self
+    {
+        if (!$active) {
+            $this->tokens->map(static fn (AccessToken $token) => $token->setActive(false));
+            $this->connectedDevices->map(static fn (ConnectedDevice $device) => $device->setActive(false));
+        }
+
+        return $this;
+    }
 }
