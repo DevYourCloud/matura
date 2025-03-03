@@ -2,10 +2,12 @@
 
 namespace App\Security;
 
+use App\Context\AppContext;
 use App\Model\ForwardedRequest;
 use App\Repository\AccessTokenRepository;
 use App\Service\AccessTokenManager;
 use App\Service\EncryptionService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,24 +25,33 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
         private string $accessTokenParameterName,
         private AccessTokenRepository $accessTokenRepository,
         private AccessTokenManager $accessTokenManager,
+        private LoggerInterface $logger,
+        private AppContext $appContext,
     ) {
     }
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has(ForwardedRequest::HEADER_URI);
+        $accessTokenParams = null !== ForwardedRequest::searchAccessTokenInUri(
+            $request->headers->get(ForwardedRequest::HEADER_URI),
+            $this->accessTokenParameterName
+        );
+
+        $accessTokenCookie = $request->cookies->has($this->accessTokenParameterName);
+
+        return $accessTokenParams || $accessTokenCookie;
     }
 
     public function authenticate(Request $request): Passport
     {
-        $match = [];
-        preg_match(
-            sprintf('/%s=([\w-]{%d})/', $this->accessTokenParameterName, EncryptionService::ACCESS_TOKEN_LENGTH),
-            $request->headers->get(ForwardedRequest::HEADER_URI),
-            $match
-        );
+        $this->logger->debug(json_encode($request->headers->all()));
+        $this->logger->debug(json_encode($request->query->all()));
+        $this->logger->debug(json_encode($request->request->all()));
+        $this->logger->debug(json_encode($request->getContent()));
 
-        $accessToken = $match[1] ?? null;
+        $this->appContext->initializeFromRequest(new ForwardedRequest($request));
+
+        $accessToken = $this->appContext->getForwardedRequest()->getAccessTokenFromRequest($this->accessTokenParameterName);
 
         if (null === $accessToken || '' === $accessToken || EncryptionService::ACCESS_TOKEN_LENGTH !== strlen($accessToken)) {
             throw new CustomUserMessageAuthenticationException(sprintf('[ACCESS TOKEN] Invalid format : "%s"', $request->headers->get(ForwardedRequest::HEADER_URI)));
@@ -54,6 +65,15 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
 
         if (!$this->accessTokenManager->isValidAccessToken($accessTokenEntity)) {
             throw new CustomUserMessageAuthenticationException(sprintf('[ACCESS TOKEN] Expired token or not active token "%s"', $accessToken));
+        }
+
+        $this->appContext->setAccessToken($accessTokenEntity);
+        $this->appContext->setAccessGranted(true);
+
+        if (!$request->cookies->has($this->accessTokenParameterName)) {
+            $this->appContext->setCreateAccessToken(true);
+
+            // throw new CustomUserMessageAuthenticationException(sprintf('[ACCESS TOKEN] CREATING TOKEN COOKIE'));
         }
 
         return new SelfValidatingPassport(new UserBadge($accessTokenEntity->getServer()->getUser()->getUserIdentifier()));

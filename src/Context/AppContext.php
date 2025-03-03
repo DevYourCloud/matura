@@ -2,6 +2,7 @@
 
 namespace App\Context;
 
+use App\Entity\AccessToken;
 use App\Entity\Application;
 use App\Entity\ConnectedDevice;
 use App\Entity\Server;
@@ -14,6 +15,8 @@ class AppContext
 
     private ?Application $app = null;
 
+    private ?AccessToken $accessToken = null;
+
     private ?ConnectedDevice $connectedDevice = null;
 
     private ?ForwardedRequest $forwardedRequest = null;
@@ -21,6 +24,8 @@ class AppContext
     private bool $accessGranted = false;
 
     private bool $createTrustedCookie = false;
+
+    private bool $createAccessToken = false;
 
     private bool $initialized = false;
 
@@ -122,5 +127,29 @@ class AppContext
     public function hasValidForwardedAuthRequest(): bool
     {
         return $this->forwardedRequest && $this->forwardedRequest->isValid();
+    }
+
+    public function setCreateAccessToken(bool $createAccessToken): self
+    {
+        $this->createAccessToken = $createAccessToken;
+
+        return $this;
+    }
+
+    public function createAccessToken(): bool
+    {
+        return $this->createAccessToken;
+    }
+
+    public function getAccessToken(): ?AccessToken
+    {
+        return $this->accessToken;
+    }
+
+    public function setAccessToken(?AccessToken $accessToken): AppContext
+    {
+        $this->accessToken = $accessToken;
+
+        return $this;
     }
 }

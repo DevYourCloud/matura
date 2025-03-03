@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+use App\Service\EncryptionService;
 use Symfony\Component\HttpFoundation\Request;
 
 class ForwardedRequest
@@ -56,5 +57,26 @@ class ForwardedRequest
     public function getTrustedDeviceCookie(string $name): ?string
     {
         return $this->request->cookies->get($name, null);
+    }
+
+    public function getAccessTokenFromRequest(string $accessTokenParameterName): ?string
+    {
+        if ($this->request->cookies->has($accessTokenParameterName)) {
+            return $this->request->cookies->get($accessTokenParameterName);
+        } else {
+            return self::searchAccessTokenInUri($this->request->headers->get(ForwardedRequest::HEADER_URI), $accessTokenParameterName);
+        }
+    }
+
+    public static function searchAccessTokenInUri(string $subject, string $accessTokenParameterName): ?string
+    {
+        $match = [];
+        preg_match(
+            sprintf('/%s=([\w-]{%d})/', $accessTokenParameterName, EncryptionService::ACCESS_TOKEN_LENGTH),
+            $subject,
+            $match
+        );
+
+        return $match[1] ?? null;
     }
 }

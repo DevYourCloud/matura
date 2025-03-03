@@ -24,6 +24,7 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
 {
     public function __construct(
         private string $trustedDeviceCookieName,
+        private string $accessTokenParameterName,
         private ConnectedDeviceManager $connectedDeviceManager,
         private AuthorizationCheckerInterface $authorizationChecker,
         private AppContext $appContext,
@@ -33,6 +34,10 @@ class TrustedDeviceAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
+        if ($this->appContext->isAccessGranted()) {
+            return false;
+        }
+
         return $request->headers->has(ForwardedRequest::HEADER_FOR);
     }
 
